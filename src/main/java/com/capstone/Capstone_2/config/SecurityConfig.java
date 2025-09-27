@@ -1,7 +1,7 @@
 package com.capstone.Capstone_2.config;
 
-import com.capstone.Capstone_2.service.CustomOAuth2UserService; // import 추가
-import org.springframework.beans.factory.annotation.Autowired;
+import com.capstone.Capstone_2.service.CustomOAuth2UserService;
+import lombok.RequiredArgsConstructor; // ✅ @Autowired 대신 생성자 주입 방식으로 변경
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,10 +12,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor // ✅ @Autowired 대신 생성자 주입 방식으로 변경
 public class SecurityConfig {
 
-    @Autowired
-    private CustomOAuth2UserService customOAuth2UserService; // 주입
+    private final CustomOAuth2UserService customOAuth2UserService; // ✅ final 필드로 변경
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -26,26 +26,25 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ 웹 페이지 경로와 API 경로를 모두 허용하도록 수정
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                // 기존 formLogin 설정은 그대로 유지
                 .formLogin((form) -> form
                         .loginPage("/auth/login")
-                        .defaultSuccessUrl("/home", true)
+                        .usernameParameter("email")
+                        .defaultSuccessUrl("/home", true) // 로그인 성공 시 이동할 기본 페이지
                         .permitAll()
                 )
-                // 기존 logout 설정도 그대로 유지
                 .logout((logout) -> logout
                         .logoutSuccessUrl("/")
                         .permitAll()
                 )
-                // 여기에 OAuth2 로그인 설정 추가
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/auth/login") // 사용자가 인증되지 않았을 때 이동할 로그인 페이지
-                        .defaultSuccessUrl("/home", true) // 로그인 성공 시 이동할 페이지
+                        .loginPage("/auth/login")
+                        .defaultSuccessUrl("/home", true)
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService) // 사용자 정보를 처리할 서비스
+                                .userService(customOAuth2UserService)
                         )
                 );
 

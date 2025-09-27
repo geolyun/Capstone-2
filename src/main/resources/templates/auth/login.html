@@ -7,12 +7,12 @@
 <body>
 <h1>로그인</h1>
 <div th:if="${param.error}" style="color: red;">
-    사용자 이름 또는 비밀번호가 올바르지 않습니다.
+    이메일 또는 비밀번호가 올바르지 않습니다.
 </div>
 <form th:action="@{/auth/login}" method="post">
     <div>
-        <label for="username">사용자 이름:</label>
-        <input type="text" id="username" name="username" required autofocus/>
+        <label for="email">이메일:</label>
+        <input type="text" id="email" name="email" required autofocus/>
     </div>
     <div>
         <label for="password">비밀번호:</label>
@@ -27,10 +27,9 @@
 <a href="/oauth2/authorization/google">
     <button>Google로 로그인</button>
 </a>
-<a href="/oauth2/authorization/kakao" class="social-login-btn kakao-btn">
+<a href="/oauth2/authorization/kakao">
     <button>Kakao로 로그인</button>
 </a>
 <p><a th:href="@{/auth/register}">회원가입</a></p>
-
 </body>
 </html>

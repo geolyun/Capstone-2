@@ -72,6 +72,7 @@ public class OAuthAttributes {
                 .email(email)
                 .avatarUrl(avatarUrl)
                 .provider(provider)
+                .providerId(providerId)
                 .role("user")
                 .status("active")
                 .build();
