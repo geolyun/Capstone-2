@@ -1,22 +1,24 @@
 package com.capstone.Capstone_2.service.impl;
 
+import com.capstone.Capstone_2.dto.CourseDto.*;
 import com.capstone.Capstone_2.entity.Category;
 import com.capstone.Capstone_2.entity.Course;
-import com.capstone.Capstone_2.entity.CreatorProfile;
 import com.capstone.Capstone_2.entity.CourseSpot;
+import com.capstone.Capstone_2.entity.CreatorProfile;
 import com.capstone.Capstone_2.entity.ReviewState;
-import com.capstone.Capstone_2.dto.CourseDto.*;
+import com.capstone.Capstone_2.entity.User;
 import com.capstone.Capstone_2.repository.*;
 import com.capstone.Capstone_2.service.CourseService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.access.AccessDeniedException;
 
-
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,22 +26,31 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class CourseServiceImpl implements CourseService {
+
     private final CourseRepository courseRepo;
     private final CreatorProfileRepository creatorRepo;
     private final CategoryRepository categoryRepo;
     private final CourseSpotRepository spotRepo;
-
+    private final UserRepository userRepo; // ✅ User 조회를 위해 추가
 
     @Override
-    public Detail create(CreateReq req, UUID creatorUserId) {
-        CreatorProfile creator = creatorRepo.findByUserId(creatorUserId)
-                .orElseThrow(() -> new EntityNotFoundException("creator not found"));
+    public Detail create(CreateReq req, String creatorEmail) {
+        // ✅ 1. 이메일로 User를 찾고, 거기서 CreatorProfile을 가져옵니다.
+        User creatorUser = userRepo.findByEmail(creatorEmail)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일을 가진 사용자를 찾을 수 없습니다: " + creatorEmail));
+
+        CreatorProfile creator = creatorUser.getCreatorProfile();
+        if (creator == null) {
+            throw new EntityNotFoundException("해당 사용자의 크리에이터 프로필이 존재하지 않습니다.");
+        }
+
         Category category = null;
         if (req.categoryId() != null) {
             category = categoryRepo.findById(req.categoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("category not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다."));
         }
-        Course c = Course.builder()
+
+        Course newCourse = Course.builder()
                 .creator(creator)
                 .category(category)
                 .title(req.title())
@@ -49,123 +60,111 @@ public class CourseServiceImpl implements CourseService {
                 .regionName(req.regionName())
                 .durationMinutes(req.durationMinutes())
                 .estimatedCost(req.estimatedCost())
+                .tags(req.tags() == null ? null : new HashSet<>(req.tags()))
                 .metadata(req.metadata())
                 .reviewState(ReviewState.DRAFT)
                 .build();
-        courseRepo.save(c);
 
-        if (req.tags() != null) {
-            c.getTags().addAll(normalizeTags(req.tags()));
+        courseRepo.save(newCourse);
+
+        if (req.spots() != null && !req.spots().isEmpty()) {
+            upsertSpots(newCourse, req.spots());
         }
-        courseRepo.save(c);
 
-
-        upsertSpots(c, req.spots());
-        return toDetail(c);
+        return toDetail(newCourse);
     }
 
-
     @Override
-    public Detail update(UUID courseId, UpdateReq req, UUID currentUserId) {
-        Course c = courseRepo.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("course not found"));
+    public Detail update(UUID courseId, UpdateReq req, String currentUserEmail) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다."));
 
-        // 본인 확인
-        if (!c.getCreator().getUser().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("You do not have permission to update this course.");
+        // ✅ 2. 이메일로 본인 확인
+        if (!course.getCreator().getUser().getEmail().equals(currentUserEmail)) {
+            throw new AccessDeniedException("이 코스를 수정할 권한이 없습니다.");
         }
 
         if (req.categoryId() != null) {
-            c.setCategory(categoryRepo.findById(req.categoryId())
-                    .orElseThrow(() -> new EntityNotFoundException("category not found")));
+            course.setCategory(categoryRepo.findById(req.categoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("카테고리를 찾을 수 없습니다.")));
         }
-
-        if (req.tags() != null) {
-            c.getTags().clear();
-            c.getTags().addAll(normalizeTags(req.tags()));
-        }
-
-        if (req.title() != null) c.setTitle(req.title());
-        if (req.summary() != null) c.setSummary(req.summary());
-        if (req.coverImageUrl() != null) c.setCoverImageUrl(req.coverImageUrl());
-        if (req.regionCode() != null) c.setRegionCode(req.regionCode());
-        if (req.regionName() != null) c.setRegionName(req.regionName());
-        if (req.durationMinutes() != null) c.setDurationMinutes(req.durationMinutes());
-        if (req.estimatedCost() != null) c.setEstimatedCost(req.estimatedCost());
-        if (req.tags() != null) {                 // null이면 '태그 변경 없음'
-            c.getTags().clear();                  // 비어있는 리스트가 들어오면 '전부 제거'가 됨
-            c.getTags().addAll(normalizeTags(req.tags()));  // 중복/공백 정리해서 추가
-        }
-        if (req.metadata() != null) c.setMetadata(req.metadata());
-
+        if (req.title() != null) course.setTitle(req.title());
+        if (req.summary() != null) course.setSummary(req.summary());
+        if (req.coverImageUrl() != null) course.setCoverImageUrl(req.coverImageUrl());
+        if (req.regionCode() != null) course.setRegionCode(req.regionCode());
+        if (req.regionName() != null) course.setRegionName(req.regionName());
+        if (req.durationMinutes() != null) course.setDurationMinutes(req.durationMinutes());
+        if (req.estimatedCost() != null) course.setEstimatedCost(req.estimatedCost());
+        if (req.tags() != null) course.setTags(req.tags() == null ? null : new HashSet<>(req.tags()));
+        if (req.metadata() != null) course.setMetadata(req.metadata());
 
         if (req.spots() != null) {
-            spotRepo.deleteByCourse(c);
-            upsertSpots(c, req.spots());
+            spotRepo.deleteByCourse(course);
+            upsertSpots(course, req.spots());
         }
-        return toDetail(c);
-    }
 
+        return toDetail(course);
+    }
 
     @Override
-    public void delete(UUID courseId, UUID currentUserId) {
-        Course c = courseRepo.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("course not found"));
+    public void delete(UUID courseId, String currentUserEmail) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다."));
 
-        // 본인 확인
-        if (!c.getCreator().getUser().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("You do not have permission to delete this course.");
+        // ✅ 이메일로 본인 확인
+        if (!course.getCreator().getUser().getEmail().equals(currentUserEmail)) {
+            throw new AccessDeniedException("이 코스를 삭제할 권한이 없습니다.");
         }
 
-        courseRepo.delete(c);
+        courseRepo.delete(course);
     }
 
-
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public Detail get(UUID courseId) {
-        Course c = courseRepo.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("course not found"));
-        return toDetail(c);
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다."));
+        return toDetail(course);
     }
 
-
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public Page<CourseSummary> search(String q, Pageable pageable) {
         return courseRepo.search(ReviewState.APPROVED, q, pageable)
                 .map(this::toSummary);
     }
 
-
     @Override
-    public Detail submitForReview(UUID courseId, UUID currentUserId) {
-        Course c = courseRepo.findById(courseId).orElseThrow(() -> new EntityNotFoundException("Course not found"));
+    public Detail submitForReview(UUID courseId, String currentUserEmail) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다."));
 
-        // 본인 확인
-        if (!c.getCreator().getUser().getId().equals(currentUserId)) {
-            throw new AccessDeniedException("You are not the owner of this course.");
+        // ✅ 이메일로 본인 확인
+        if (!course.getCreator().getUser().getEmail().equals(currentUserEmail)) {
+            throw new AccessDeniedException("이 코스를 제출할 권한이 없습니다.");
         }
 
-        c.setReviewState(ReviewState.PENDING);
-        return toDetail(c);
+        course.setReviewState(ReviewState.PENDING);
+        return toDetail(course);
     }
 
     @Override
     public Detail approve(UUID courseId) {
-        Course c = courseRepo.findById(courseId).orElseThrow();
-        c.setReviewState(ReviewState.APPROVED);
-        c.setPublishedAt(java.time.OffsetDateTime.now());
-        return toDetail(c);
+        Course course = courseRepo.findById(courseId).orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        course.setReviewState(ReviewState.APPROVED);
+        course.setPublishedAt(OffsetDateTime.now());
+        return toDetail(course);
     }
-
 
     @Override
     public Detail reject(UUID courseId, String reason) {
-        Course c = courseRepo.findById(courseId).orElseThrow();
-        c.setReviewState(ReviewState.REJECTED);
-        c.setRejectedReason(reason);
-        return toDetail(c);
+        Course course = courseRepo.findById(courseId).orElseThrow(() -> new EntityNotFoundException("Course not found"));
+        course.setReviewState(ReviewState.REJECTED);
+        course.setRejectedReason(reason);
+        return toDetail(course);
     }
 
+    // --- Helper Methods ---
 
     private void upsertSpots(Course c, List<SpotReq> spots) {
         List<CourseSpot> entities = spots.stream().map(s -> CourseSpot.builder()
@@ -173,22 +172,22 @@ public class CourseServiceImpl implements CourseService {
                 .orderNo(s.orderNo())
                 .title(s.title())
                 .description(s.description())
-                .lat(s.lat())
-                .lng(s.lng())
-                .images(s.images() == null ? null : toJsonArray(s.images()))
+                .lat(s.lat()) // DTO의 lat(BigDecimal)를 그대로 사용
+                .lng(s.lng()) // DTO의 lng(BigDecimal)를 그대로 사용
+                .images(toJsonArray(s.images()))
                 .stayMinutes(s.stayMinutes())
                 .price(s.price())
                 .build()).toList();
         spotRepo.saveAll(entities);
     }
 
-
     private String toJsonArray(List<String> list) {
-        return list == null ? null : list.stream()
+        if (list == null || list.isEmpty()) return null;
+        // 실제 운영 환경에서는 Jackson과 같은 라이브러리 사용을 권장합니다.
+        return list.stream()
                 .map(s -> "\"" + s.replace("\"", "\\\"") + "\"")
                 .collect(Collectors.joining(",", "[", "]"));
     }
-
 
     private CourseSummary toSummary(Course c) {
         return new CourseSummary(
@@ -197,7 +196,6 @@ public class CourseServiceImpl implements CourseService {
                 c.getLikeCount(), c.getPurchaseCount(), c.getReviewState()
         );
     }
-
 
     private Detail toDetail(Course c) {
         List<CourseSpot> spots = spotRepo.findByCourseOrderByOrderNoAsc(c);
@@ -212,7 +210,7 @@ public class CourseServiceImpl implements CourseService {
                 c.getCategory() == null ? null : c.getCategory().getSlug(),
                 c.getTitle(), c.getSummary(), c.getCoverImageUrl(),
                 c.getRegionCode(), c.getRegionName(), c.getDurationMinutes(), c.getEstimatedCost(),
-                c.getTags() == null ? List.of() : new ArrayList<>(c.getTags()),  // ← Set → List
+                c.getTags() == null ? List.of() : new ArrayList<>(c.getTags()),
                 c.getMetadata(), c.getLikeCount(), c.getPurchaseCount(), c.getReviewState(),
                 c.getPublishedAt(), spotRes
         );
@@ -226,17 +224,4 @@ public class CourseServiceImpl implements CourseService {
                 .filter(s -> !s.isBlank())
                 .toList();
     }
-
-    private Set<String> normalizeTags(List<String> src) {
-        if (src == null) return Set.of();
-        Set<String> out = new LinkedHashSet<>();
-        for (String s : src) {
-            if (s == null) continue;
-            String t = s.trim();
-            if (!t.isEmpty()) out.add(t);
-        }
-        return out;
-    }
-
-
 }

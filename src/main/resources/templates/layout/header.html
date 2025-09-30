@@ -3,24 +3,39 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
 
 <div th:fragment="header">
-    <nav>
-        <a th:href="@{/}">홈</a> |
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">Pathly</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/home}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">코스 탐색</a>
+                    </li>
+                </ul>
 
-        <span sec:authorize="!isAuthenticated()">
-            <a th:href="@{/auth/login}">로그인</a> |
-            <a th:href="@{/auth/register}">회원가입</a>
-        </span>
+                <div class="d-flex">
+                    <div sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/auth/login}" class="btn btn-outline-light me-2">로그인</a>
+                        <a th:href="@{/auth/register}" class="btn btn-primary">회원가입</a>
+                    </div>
 
-        <span sec:authorize="isAuthenticated()">
-            <span sec:authentication="name"></span>님 환영합니다! | <a th:href="@{/my-page}">마이페이지</a> |
-
-            <form th:action="@{/logout}" method="post" style="display: inline; margin: 0; padding: 0;">
-                <button type="submit" style="border: none; background: none; color: blue; text-decoration: underline; cursor: pointer;">
-                    로그아웃
-                </button>
-            </form>
-        </span>
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center">
+                        <span class="navbar-text me-3">
+                            <span sec:authentication="name">사용자</span>님
+                        </span>
+                        <form th:action="@{/logout}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-light btn-sm">로그아웃</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
-    <hr>
 </div>
 </html>

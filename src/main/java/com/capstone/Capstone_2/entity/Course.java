@@ -60,13 +60,13 @@ public class Course extends BaseTimeEntity {
 
     private Integer estimatedCost;
 
+    @Builder.Default
     @Column(nullable = false)
-    @ColumnDefault("0")
-    private Integer likeCount;
+    private Integer likeCount = 0;
 
+    @Builder.Default
     @Column(nullable = false)
-    @ColumnDefault("0")
-    private Integer purchaseCount;
+    private Integer purchaseCount = 0;
 
     @ElementCollection
     @CollectionTable(name = "course_tags", joinColumns = @JoinColumn(name = "course_id"))

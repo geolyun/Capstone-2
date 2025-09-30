@@ -8,54 +8,50 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails; // ✅✅✅ 1. 올바른 UserDetails를 import 합니다. ✅✅✅
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.UUID;
 
-
-@RestController @RequestMapping("/api/courses") @RequiredArgsConstructor
+@RestController
+@RequestMapping("/api/courses")
+@RequiredArgsConstructor
 public class CourseController {
     private final CourseService service;
-
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Detail create(@Valid @RequestBody CreateReq req, @AuthenticationPrincipal UserDetails principal) {
-        return service.create(req, UUID.fromString(principal.getUsername())); // 예시: principal에 UUID id가 있다고 가정
+        // ✅✅✅ 2. 서비스에는 UUID가 아닌, 안전하게 얻은 '이메일'을 전달합니다. ✅✅✅
+        return service.create(req, principal.getUsername());
     }
-
 
     @PutMapping("/{id}")
     public Detail update(@PathVariable UUID id, @RequestBody UpdateReq req, @AuthenticationPrincipal UserDetails principal) {
-        return service.update(id, req, UUID.fromString(principal.getUsername())); // 예시
+        return service.update(id, req, principal.getUsername());
     }
-
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id, @AuthenticationPrincipal UserDetails principal) {
-        service.delete(id, UUID.fromString(principal.getUsername())); // 예시
+        service.delete(id, principal.getUsername());
     }
-
 
     @GetMapping("/{id}")
     public Detail get(@PathVariable UUID id) {
         return service.get(id);
     }
 
-
     @GetMapping
     public Page<CourseSummary> search(@RequestParam(required = false) String q, Pageable pageable) {
         return service.search(q, pageable);
     }
 
-
     @PostMapping("/{id}/submit")
     public Detail submit(@PathVariable UUID id, @AuthenticationPrincipal UserDetails principal) {
-        return service.submitForReview(id, UUID.fromString(principal.getUsername()));
+        return service.submitForReview(id, principal.getUsername());
     }
+
 
     @PostMapping("/{id}/approve")
     public Detail approve(@PathVariable UUID id) {

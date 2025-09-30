@@ -23,7 +23,6 @@ public class CourseDto {
 
 
     public record CreateReq(
-            @NotNull UUID creatorId,
             UUID categoryId,
             @NotBlank @Size(max = 100) String title,
             String summary,

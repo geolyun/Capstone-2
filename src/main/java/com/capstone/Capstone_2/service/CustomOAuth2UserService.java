@@ -1,9 +1,9 @@
 package com.capstone.Capstone_2.service;
 
-
+import com.capstone.Capstone_2.dto.OAuthAttributes;
+import com.capstone.Capstone_2.entity.CreatorProfile;
 import com.capstone.Capstone_2.entity.User;
 import com.capstone.Capstone_2.repository.UserRepository;
-import com.capstone.Capstone_2.dto.OAuthAttributes; // 아래에서 만들 헬퍼 DTO
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -13,8 +13,10 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,37 +29,55 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // 현재 로그인 진행 중인 서비스를 구분 (google, naver, kakao...)
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        // OAuth2 로그인 진행 시 키가 되는 필드값
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
-        // OAuth2User의 attribute를 담을 클래스
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
         User user = saveOrUpdate(attributes);
 
-        // Spring Security가 세션에 저장할 OAuth2User 객체를 생성하여 반환
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole().toUpperCase())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
     }
 
-    // DB에 사용자 정보가 없으면 새로 저장하고, 있으면 업데이트하는 메서드
+    // ✅✅✅ 이 메서드의 로직을 완전히 변경합니다. ✅✅✅
     private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByProviderAndProviderId(attributes.getProvider(), attributes.getProviderId())
-                .map(entity -> { // 이미 존재하는 사용자라면 닉네임, 프로필 이미지 업데이트
-                    entity.setNickname(attributes.getNickname());
-                    entity.setAvatarUrl(attributes.getAvatarUrl());
-                    return entity;
-                })
-                .orElseGet(() -> { // 새로운 사용자라면 User 엔티티를 생성하여 DB에 저장
-                    return attributes.toEntity();
-                });
+        // 1. 이메일 누락 문제 해결: 이메일이 없는 경우 예외 발생
+        if (!StringUtils.hasText(attributes.getEmail())) {
+            throw new OAuth2AuthenticationException("Email not found from OAuth2 provider.");
+        }
 
+        // 2. 이메일 중복 문제 해결: providerId가 아닌, email로 먼저 사용자를 찾습니다.
+        Optional<User> userOptional = userRepository.findByEmail(attributes.getEmail());
+        User user;
+
+        if (userOptional.isPresent()) {
+            // --- 이미 존재하는 사용자일 경우 ---
+            user = userOptional.get();
+            // 필요 시 닉네임, 프로필 이미지 등 소셜 로그인 정보 업데이트
+            user.setNickname(attributes.getNickname());
+            user.setAvatarUrl(attributes.getAvatarUrl());
+
+        } else {
+            // --- 존재하지 않는 신규 사용자일 경우 ---
+            // 'user' 변수에 새로 생성한 User 객체를 할당합니다.
+            user = attributes.toEntity();
+
+            // ✅ 'newUser' 대신 'user' 변수를 사용하도록 수정합니다.
+            CreatorProfile newProfile = CreatorProfile.builder()
+                    .user(user)
+                    .displayName(attributes.getNickname())
+                    .build();
+
+            // ✅ 'newUser' 대신 'user' 변수를 사용하도록 수정합니다.
+            user.setCreatorProfile(newProfile);
+        }
+
+        // ✅ if-else 블록 바깥에서 최종적으로 user 객체를 한 번만 저장합니다.
         return userRepository.save(user);
     }
 }
