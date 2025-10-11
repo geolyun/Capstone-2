@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 코스 만들기</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<main class="container mt-5">
+    <h2>새 코스 만들기</h2>
+    <form th:action="@{/courses}" th:object="${course}" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="title" class="form-label">코스 제목</label>
+            <input type="text" id="title" th:field="*{title}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="summary" class="form-label">한 줄 요약</label>
+            <textarea id="summary" th:field="*{summary}" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="coverImage" class="form-label">커버 이미지</label>
+            <input type="file" id="coverImage" class="form-control">
+            <input type="hidden" id="coverImageUrl" th:field="*{coverImageUrl}">
+        </div>
+
+        <hr>
+        <h4>코스 스팟 등록</h4>
+        <div id="spots-container">
+        </div>
+        <button type="button" class="btn btn-secondary mt-2">스팟 추가</button>
+
+        <hr>
+        <button type="submit" class="btn btn-primary">코스 등록하기</button>
+    </form>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

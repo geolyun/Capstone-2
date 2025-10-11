@@ -11,7 +11,9 @@ import com.capstone.Capstone_2.repository.*;
 import com.capstone.Capstone_2.service.CourseService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -111,7 +113,6 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다."));
 
-        // ✅ 이메일로 본인 확인
         if (!course.getCreator().getUser().getEmail().equals(currentUserEmail)) {
             throw new AccessDeniedException("이 코스를 삭제할 권한이 없습니다.");
         }
@@ -139,7 +140,6 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("코스를 찾을 수 없습니다."));
 
-        // ✅ 이메일로 본인 확인
         if (!course.getCreator().getUser().getEmail().equals(currentUserEmail)) {
             throw new AccessDeniedException("이 코스를 제출할 권한이 없습니다.");
         }
@@ -162,6 +162,15 @@ public class CourseServiceImpl implements CourseService {
         course.setReviewState(ReviewState.REJECTED);
         course.setRejectedReason(reason);
         return toDetail(course);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable("popularCourses")
+    public Page<CourseSummary> getPopularCourses(Pageable pageable) {
+        System.out.println("### DB에서 인기 코스를 조회합니다... ###"); // 캐시가 작동하는지 확인하기 위한 로그
+        return courseRepo.findByOrderByLikeCountDesc(pageable)
+                .map(this::toSummary);
     }
 
     // --- Helper Methods ---
@@ -223,5 +232,13 @@ public class CourseServiceImpl implements CourseService {
                 .map(s -> s.trim().replace("\"", ""))
                 .filter(s -> !s.isBlank())
                 .toList();
+    }
+
+    public List<CourseSummary> getRelatedCourses(UUID courseId) {
+        // 상위 5개만 추천
+        Pageable pageable = PageRequest.of(0, 5);
+        return courseRepo.findRelatedCoursesByLikes(courseId, pageable).stream()
+                .map(this::toSummary)
+                .collect(Collectors.toList());
     }
 }

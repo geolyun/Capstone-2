@@ -9,6 +9,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "creator_profiles")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

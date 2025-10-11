@@ -5,6 +5,7 @@ import com.capstone.Capstone_2.dto.LoginDto;
 import com.capstone.Capstone_2.dto.SignUpDto;
 import com.capstone.Capstone_2.dto.TokenDto;
 import com.capstone.Capstone_2.entity.User;
+import com.capstone.Capstone_2.entity.UserRole;
 import com.capstone.Capstone_2.repository.UserRepository;
 import com.capstone.Capstone_2.service.AuthService;
 import com.capstone.Capstone_2.entity.CreatorProfile;
@@ -41,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
                 .passwordHash(passwordEncoder.encode(signUpDto.getPassword()))
                 .nickname(signUpDto.getNickname())
                 .provider("local")
-                .role("user")
+                .role(UserRole.USER)
                 .status("active")
                 .build();
 

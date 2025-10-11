@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.dto;
 
 import com.capstone.Capstone_2.entity.User;
+import com.capstone.Capstone_2.entity.UserRole;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -73,7 +74,7 @@ public class OAuthAttributes {
                 .avatarUrl(avatarUrl)
                 .provider(provider)
                 .providerId(providerId)
-                .role("user")
+                .role(UserRole.USER)
                 .status("active")
                 .build();
     }

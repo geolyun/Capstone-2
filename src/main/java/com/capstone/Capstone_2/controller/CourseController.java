@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails; // ✅✅✅ 1. 올바른 UserDetails를 import 합니다. ✅✅✅
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -61,5 +62,10 @@ public class CourseController {
     @PostMapping("/{id}/reject")
     public Detail reject(@PathVariable UUID id, @RequestParam String reason) {
         return service.reject(id, reason);
+    }
+
+    @GetMapping("/{courseId}/related")
+    public List<CourseSummary> getRelatedCourses(@PathVariable UUID courseId) {
+        return service.getRelatedCourses(courseId);
     }
 }

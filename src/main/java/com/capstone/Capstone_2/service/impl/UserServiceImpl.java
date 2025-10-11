@@ -3,6 +3,7 @@ package com.capstone.Capstone_2.service.impl;
 import com.capstone.Capstone_2.dto.SignUpDto;
 import com.capstone.Capstone_2.entity.CreatorProfile;
 import com.capstone.Capstone_2.entity.User;
+import com.capstone.Capstone_2.entity.UserRole;
 import com.capstone.Capstone_2.repository.UserRepository;
 import com.capstone.Capstone_2.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
                 .passwordHash(passwordEncoder.encode(signUpDto.getPassword())) // 비밀번호 암호화
                 .nickname(signUpDto.getNickname())
                 .provider("local") // 로컬 회원가입
-                .role("user")      // 기본 역할
+                .role(UserRole.USER)      // 기본 역할
                 .status("active")  // 기본 상태
                 .build();
 

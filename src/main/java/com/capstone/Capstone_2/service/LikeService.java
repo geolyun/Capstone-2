@@ -5,5 +5,5 @@ import java.util.UUID;
 
 
 public interface LikeService {
-    LikeDto toggle(UUID userId, UUID courseId);
+    LikeDto toggleLike(UUID courseId, String userEmail);
 }

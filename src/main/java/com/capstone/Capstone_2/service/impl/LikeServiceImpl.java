@@ -1,45 +1,51 @@
 package com.capstone.Capstone_2.service.impl;
 
+import com.capstone.Capstone_2.dto.LikeDto;
 import com.capstone.Capstone_2.entity.Course;
 import com.capstone.Capstone_2.entity.Like;
 import com.capstone.Capstone_2.entity.LikeId;
 import com.capstone.Capstone_2.entity.User;
-import com.capstone.Capstone_2.dto.LikeDto;
 import com.capstone.Capstone_2.repository.CourseRepository;
 import com.capstone.Capstone_2.repository.LikeRepository;
 import com.capstone.Capstone_2.repository.UserRepository;
 import com.capstone.Capstone_2.service.LikeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict; // ✅ CacheEvict import
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
 import java.util.UUID;
 
-
-@Service @RequiredArgsConstructor @Transactional
+@Service
+@RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
+
     private final LikeRepository likeRepo;
     private final UserRepository userRepo;
     private final CourseRepository courseRepo;
 
-
     @Override
-    public LikeDto toggle(UUID userId, UUID courseId) {
-        User u = userRepo.findById(userId).orElseThrow(EntityNotFoundException::new);
-        Course c = courseRepo.findById(courseId).orElseThrow(EntityNotFoundException::new);
+    @Transactional
+    @CacheEvict(value = "popularCourses", allEntries = true) // ✅ 캐시 무효화 기능 추가
+    public LikeDto toggleLike(UUID courseId, String userEmail) {
+        User user = userRepo.findByEmail(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
 
+        LikeId likeId = new LikeId(user.getId(), courseId);
 
-        var id = new LikeId(userId, courseId);
-        if (likeRepo.existsById(id)) {
-            likeRepo.deleteById(id);
-            c.setLikeCount(Math.max(0, c.getLikeCount() - 1));
-            return new LikeDto(userId, courseId, false);
+        if (likeRepo.existsById(likeId)) {
+            // '좋아요' 취소
+            likeRepo.deleteById(likeId);
+            course.setLikeCount(Math.max(0, course.getLikeCount() - 1));
+            return new LikeDto(user.getId(), courseId, false, course.getLikeCount());
         } else {
-            likeRepo.save(Like.builder().id(id).user(u).course(c).build());
-            c.setLikeCount(c.getLikeCount() + 1);
-            return new LikeDto(userId, courseId, true);
+            // '좋아요' 추가
+            Like newLike = Like.builder().id(likeId).user(user).course(course).build();
+            likeRepo.save(newLike);
+            course.setLikeCount(course.getLikeCount() + 1);
+            return new LikeDto(user.getId(), courseId, true, course.getLikeCount());
         }
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +30,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -84,9 +86,8 @@ public class SecurityConfig {
         // 디버깅용 로그: 서버 시작 시 이 필터 체인이 로드되는지 확인
         System.out.println("### Initializing WEB Security Filter Chain ###");
         http
-                // ✅ 중요: 이 규칙은 /api/ 경로가 아닌 나머지 모든 경로에만 적용됨
                 .authenticationProvider(authenticationProvider())
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/h2-console/**").permitAll()
@@ -101,7 +102,7 @@ public class SecurityConfig {
                 .logout(l -> l.logoutSuccessUrl("/").permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/auth/login")
-                        .defaultSuccessUrl("/home", true)
+                        .successHandler(oAuth2SuccessHandler)
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 );
 

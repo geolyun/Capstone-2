@@ -3,6 +3,8 @@ package com.capstone.Capstone_2.service;
 import com.capstone.Capstone_2.dto.CourseDto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 import java.util.UUID;
 
 public interface CourseService {
@@ -14,4 +16,6 @@ public interface CourseService {
     Detail submitForReview(UUID courseId, String currentUserEmail);
     Detail approve(UUID courseId);
     Detail reject(UUID courseId, String reason);
+    Page<CourseSummary> getPopularCourses(Pageable pageable);
+    List<CourseSummary> getRelatedCourses(UUID courseId);
 }
