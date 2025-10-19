@@ -1,5 +1,6 @@
 package com.capstone.Capstone_2.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,17 +11,21 @@ import lombok.Setter;
 @Setter
 public class SignUpDto {
 
-    @NotBlank(message = "이메일은 필수 입력 값입니다.")
-    @Email(message = "이메일 형식에 맞지 않습니다.")
+    @NotBlank @Email
     private String email;
 
-    @NotBlank(message = "비밀번호는 필수 입력 값입니다.")
-    @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
+    @NotBlank @Size(min = 8)
     private String password;
 
-    @NotBlank(message = "비밀번호 확인은 필수 입력 값입니다.")
+    @NotBlank
     private String passwordConfirm;
 
-    @NotBlank(message = "닉네임은 필수 입력 값입니다.")
+    @NotBlank
     private String nickname;
+
+    @AssertTrue(message = "서비스 이용 약관에 동의해야 합니다.")
+    private boolean termsAgreed;
+
+    @AssertTrue(message = "개인정보 처리 방침에 동의해야 합니다.")
+    private boolean privacyAgreed;
 }

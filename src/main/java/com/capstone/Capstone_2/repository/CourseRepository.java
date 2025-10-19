@@ -1,5 +1,6 @@
 package com.capstone.Capstone_2.repository;
 
+import com.capstone.Capstone_2.entity.Category;
 import com.capstone.Capstone_2.entity.Course;
 import com.capstone.Capstone_2.entity.ReviewState;
 import com.capstone.Capstone_2.entity.CreatorProfile;
@@ -20,6 +21,9 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
 
     Page<Course> findByCreator(CreatorProfile creator, Pageable pageable);
 
+    Page<Course> findByCategoryAndIdNotOrderByLikeCountDesc(Category category, UUID excludeCourseId, Pageable pageable);
+
+    Page<Course> findByRegionCodeAndIdNotOrderByLikeCountDesc(String regionCode, UUID excludeCourseId, Pageable pageable);
 
     Page<Course> findByOrderByLikeCountDesc(Pageable pageable);
 

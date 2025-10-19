@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.CourseDto.*;
+import com.capstone.Capstone_2.dto.RecommendationDto;
 import com.capstone.Capstone_2.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -64,8 +65,8 @@ public class CourseController {
         return service.reject(id, reason);
     }
 
-    @GetMapping("/{courseId}/related")
-    public List<CourseSummary> getRelatedCourses(@PathVariable UUID courseId) {
-        return service.getRelatedCourses(courseId);
+    @GetMapping("/{courseId}/recommendations")
+    public RecommendationDto getCourseRecommendations(@PathVariable UUID courseId) {
+        return service.getCourseRecommendations(courseId);
     }
 }

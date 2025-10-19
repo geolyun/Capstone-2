@@ -15,30 +15,46 @@
                 <div class="card-body p-4 p-md-5">
                     <h2 class="text-center mb-4">회원가입</h2>
 
-                    <form id="registerForm" th:action="@{/auth/register}" method="post">
+                    <form th:action="@{/auth/register}" method="post" th:object="${signUpDto}">
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                            <input type="email" class="form-control" th:errorclass="is-invalid" id="email" th:field="*{email}" placeholder=" " required>
                             <label for="email">이메일 주소</label>
+                            <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="invalid-feedback"></div>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                            <input type="password" class="form-control" th:errorclass="is-invalid" id="password" th:field="*{password}" placeholder=" " required>
                             <label for="password">비밀번호</label>
+                            <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="invalid-feedback"></div>
                         </div>
-
                         <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="passwordConfirm" name="passwordConfirm" placeholder="Confirm Password" required>
+                            <input type="password" class="form-control" th:errorclass="is-invalid" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder=" " required>
                             <label for="passwordConfirm">비밀번호 확인</label>
-                            <div id="passwordError" class="form-text text-danger" style="display: none;">
-                                비밀번호가 일치하지 않습니다.
-                            </div>
+                            <div th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" th:errorclass="is-invalid" id="nickname" th:field="*{nickname}" placeholder=" " required>
+                            <label for="nickname">닉네임</label>
+                            <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="invalid-feedback"></div>
                         </div>
 
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="nickname" name="nickname" placeholder="Nickname" required>
-                            <label for="nickname">닉네임</label>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" th:errorclass="is-invalid" type="checkbox" id="termsAgreed" th:field="*{termsAgreed}">
+                            <label class="form-check-label" for="termsAgreed">
+                                <a href="/terms" target="_blank">서비스 이용 약관</a>에 동의합니다. (필수)
+                            </label>
+                            <div th:if="${#fields.hasErrors('termsAgreed')}" th:errors="*{termsAgreed}" class="invalid-feedback d-block"></div>
                         </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" th:errorclass="is-invalid" type="checkbox" id="privacyAgreed" th:field="*{privacyAgreed}">
+                            <label class="form-check-label" for="privacyAgreed">
+                                <a href="/privacy" target="_blank">개인정보 처리 방침</a>에 동의합니다. (필수)
+                            </label>
+                            <div th:if="${#fields.hasErrors('privacyAgreed')}" th:errors="*{privacyAgreed}" class="invalid-feedback d-block"></div>
+                        </div>
+
                         <div class="d-grid">
-                            <button type="submit" id="submitButton" class="btn btn-primary btn-lg">가입하기</button>
+                            <button type="submit" class="btn btn-primary btn-lg">가입하기</button>
                         </div>
                     </form>
 
@@ -62,10 +78,10 @@
     function validatePassword() {
         if (passwordInput.value !== passwordConfirmInput.value) {
             passwordError.style.display = 'block';
-            submitButton.disabled = true; // 불일치 시 버튼 비활성화
+            submitButton.disabled = true;
         } else {
             passwordError.style.display = 'none';
-            submitButton.disabled = false; // 일치 시 버튼 활성화
+            submitButton.disabled = false;
         }
     }
 

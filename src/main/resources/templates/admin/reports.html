@@ -21,10 +21,10 @@
         </thead>
         <tbody>
         <tr th:each="report : ${reportPage.content}">
-            <td th:text="${report.id}"></td>
-            <td th:text="${report.reportedCourse.title}"></td>
+            <td th:text="${report.reportId}"></td>
+            <td th:text="${report.reportedCourseTitle}"></td>
             <td th:text="${report.reason}"></td>
-            <td th:text="${report.reporter.nickname}"></td>
+            <td th:text="${report.reporterNickname}"></td>
             <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
             <td><button class="btn btn-primary btn-sm">처리하기</button></td>
         </tr>

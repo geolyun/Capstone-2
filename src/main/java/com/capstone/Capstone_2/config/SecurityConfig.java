@@ -50,13 +50,9 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // =========================
-    // 1. API 보안 체인 (JWT)
-    // =========================
     @Bean
-    @Order(1) // ✅ 우선순위 1번
+    @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-        // 디버깅용 로그: 서버 시작 시 이 필터 체인이 로드되는지 확인
         System.out.println("### Initializing API Security Filter Chain ###");
         http
                 .securityMatcher("/api/**") // ✅ 이 필터 체인은 /api/ 경로에만 적용됨
@@ -77,20 +73,17 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // =========================
-    // 2. 웹 보안 체인 (폼 로그인, OAuth2)
-    // =========================
     @Bean
-    @Order(2) // ✅ 우선순위 2번
+    @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
-        // 디버깅용 로그: 서버 시작 시 이 필터 체인이 로드되는지 확인
         System.out.println("### Initializing WEB Security Filter Chain ###");
         http
                 .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/h2-console/**", "/privacy", "/terms").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

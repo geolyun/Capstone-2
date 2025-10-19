@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.service;
 
 import com.capstone.Capstone_2.dto.CourseDto.*;
+import com.capstone.Capstone_2.dto.RecommendationDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,5 +18,5 @@ public interface CourseService {
     Detail approve(UUID courseId);
     Detail reject(UUID courseId, String reason);
     Page<CourseSummary> getPopularCourses(Pageable pageable);
-    List<CourseSummary> getRelatedCourses(UUID courseId);
+    RecommendationDto getCourseRecommendations(UUID courseId);
 }

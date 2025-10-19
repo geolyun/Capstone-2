@@ -1,7 +1,8 @@
 package com.capstone.Capstone_2.controller;
 
-import com.capstone.Capstone_2.entity.Report;
-import com.capstone.Capstone_2.repository.ReportRepository;
+import com.capstone.Capstone_2.dto.AdminDashboardDto;
+import com.capstone.Capstone_2.dto.ReportResponseDto;
+import com.capstone.Capstone_2.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +18,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class AdminWebController {
 
-    private final ReportRepository reportRepository; // 간단한 조회를 위해 직접 사용
+    private final AdminService adminService;
+
+    // ✅ 대시보드 메인 페이지
+    @GetMapping
+    public String dashboard(Model model) {
+        AdminDashboardDto stats = adminService.getDashboardStats();
+        model.addAttribute("stats", stats);
+        return "admin/dashboard"; // templates/admin/dashboard.html 뷰
+    }
 
     @GetMapping("/reports")
     public String reportDashboard(Model model, Pageable pageable) {
-        Page<Report> reportPage = reportRepository.findByStatus(Report.ReportStatus.PENDING, pageable);
+        Page<ReportResponseDto> reportPage = adminService.getReports(pageable);
         model.addAttribute("reportPage", reportPage);
-        return "admin/reports"; // templates/admin/reports.html 뷰
+        return "admin/reports";
     }
 }

@@ -1,8 +1,12 @@
 package com.capstone.Capstone_2.service.impl;
 
+import com.capstone.Capstone_2.dto.AdminDashboardDto;
 import com.capstone.Capstone_2.dto.ReportResponseDto;
 import com.capstone.Capstone_2.entity.Report;
+import com.capstone.Capstone_2.repository.CourseRepository;
+import com.capstone.Capstone_2.repository.LikeRepository;
 import com.capstone.Capstone_2.repository.ReportRepository;
+import com.capstone.Capstone_2.repository.UserRepository;
 import com.capstone.Capstone_2.service.AdminService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +22,9 @@ import java.util.UUID;
 public class AdminServiceImpl implements AdminService {
 
     private final ReportRepository reportRepository;
+    private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
+    private final LikeRepository likeRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -39,5 +46,21 @@ public class AdminServiceImpl implements AdminService {
         report.setStatus(Report.ReportStatus.RESOLVED);
 
         // Dirty Checking에 의해 트랜잭션 종료 시 자동으로 DB에 업데이트됩니다.
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AdminDashboardDto getDashboardStats() {
+        long totalUsers = userRepository.count();
+        long totalCourses = courseRepository.count();
+        long totalLikes = likeRepository.count();
+        long pendingReports = reportRepository.countByStatus(Report.ReportStatus.PENDING);
+
+        return AdminDashboardDto.builder()
+                .totalUsers(totalUsers)
+                .totalCourses(totalCourses)
+                .totalLikes(totalLikes)
+                .pendingReports(pendingReports)
+                .build();
     }
 }

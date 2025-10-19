@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.service.impl;
 
 import com.capstone.Capstone_2.dto.CourseDto.*;
+import com.capstone.Capstone_2.dto.RecommendationDto;
 import com.capstone.Capstone_2.entity.Category;
 import com.capstone.Capstone_2.entity.Course;
 import com.capstone.Capstone_2.entity.CourseSpot;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepo;
-    private final CreatorProfileRepository creatorRepo;
     private final CategoryRepository categoryRepo;
     private final CourseSpotRepository spotRepo;
     private final UserRepository userRepo; // ✅ User 조회를 위해 추가
@@ -234,11 +234,36 @@ public class CourseServiceImpl implements CourseService {
                 .toList();
     }
 
-    public List<CourseSummary> getRelatedCourses(UUID courseId) {
-        // 상위 5개만 추천
-        Pageable pageable = PageRequest.of(0, 5);
-        return courseRepo.findRelatedCoursesByLikes(courseId, pageable).stream()
-                .map(this::toSummary)
-                .collect(Collectors.toList());
+    @Override
+    @Transactional(readOnly = true)
+    public RecommendationDto getCourseRecommendations(UUID courseId) {
+        Course sourceCourse = courseRepo.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found"));
+
+        Pageable limit = PageRequest.of(0, 5); // 각 추천별 최대 5개
+
+        // 1. 좋아요 기반 연관 추천
+        List<CourseSummary> relatedByLikes = courseRepo.findRelatedCoursesByLikes(courseId, limit).stream()
+                .map(this::toSummary).toList();
+
+        // 2. 같은 카테고리 추천
+        List<CourseSummary> sameCategory = List.of();
+        if (sourceCourse.getCategory() != null) {
+            sameCategory = courseRepo.findByCategoryAndIdNotOrderByLikeCountDesc(sourceCourse.getCategory(), courseId, limit).stream()
+                    .map(this::toSummary).toList();
+        }
+
+        // 3. 같은 지역 추천
+        List<CourseSummary> sameRegion = List.of();
+        if (sourceCourse.getRegionCode() != null && !sourceCourse.getRegionCode().isBlank()) {
+            sameRegion = courseRepo.findByRegionCodeAndIdNotOrderByLikeCountDesc(sourceCourse.getRegionCode(), courseId, limit).stream()
+                    .map(this::toSummary).toList();
+        }
+
+        return RecommendationDto.builder()
+                .relatedByLikes(relatedByLikes)
+                .sameCategory(sameCategory)
+                .sameRegion(sameRegion)
+                .build();
     }
 }
