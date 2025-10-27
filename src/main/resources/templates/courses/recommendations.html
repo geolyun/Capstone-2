@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>코스 추천</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<main class="container mt-5 mb-5">
+    <h1 class="mb-4">"<span th:text="${sourceCourse.title}">코스</span>" 관련 추천</h1>
+    <p class="lead" th:text="${sourceCourse.summary}"></p>
+    <hr>
+
+    <section class="mb-5">
+        <h2><i class="bi bi-heart-fill text-danger"></i> 이 코스를 좋아한 다른 사용자들의 추천</h2>
+        <div th:if="${recommendations.relatedByLikes.isEmpty()}">
+            <p class="text-muted">관련 추천 코스가 아직 없습니다.</p>
+        </div>
+        <div class="row row-cols-1 row-cols-md-3 g-4" th:unless="${recommendations.relatedByLikes.isEmpty()}">
+            <div class="col" th:each="course : ${recommendations.relatedByLikes}">
+                <div class="card h-100 shadow-sm">
+                    <img th:src="${course.coverImageUrl != null ? course.coverImageUrl : '/images/default-course.png'}" class="card-img-top" alt="코스 이미지" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${course.title}">코스 제목</h5>
+                        <p class="card-text text-muted small" th:text="${course.regionName}">지역</p>
+                        <p class="card-text" th:text="${#strings.abbreviate(course.summary, 100)}">요약...</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="bi bi-heart-fill text-danger"></i> <span th:text="${course.likeCount}">0</span></small>
+                        <a href="#" th:href="@{'/courses/' + ${course.id}}" class="btn btn-sm btn-outline-primary">자세히 보기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h2><i class="bi bi-tags-fill text-info"></i> 같은 카테고리 인기 코스</h2>
+        <div th:if="${recommendations.sameCategory.isEmpty()}">
+            <p class="text-muted">같은 카테고리의 다른 코스가 없습니다.</p>
+        </div>
+        <div class="list-group" th:unless="${recommendations.sameCategory.isEmpty()}">
+            <a th:each="course : ${recommendations.sameCategory}" href="#" th:href="@{'/courses/' + ${course.id}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" th:text="${course.title}">코스 제목</h6>
+                    <small class="text-muted" th:text="${course.regionName}">지역</small>
+                </div>
+                <span class="badge bg-primary rounded-pill"><i class="bi bi-heart-fill"></i> <span th:text="${course.likeCount}">0</span></span>
+            </a>
+        </div>
+    </section>
+
+    <section>
+        <h2><i class="bi bi-geo-alt-fill text-success"></i> 같은 지역 인기 코스</h2>
+        <div th:if="${recommendations.sameRegion.isEmpty()}">
+            <p class="text-muted">같은 지역의 다른 코스가 없습니다.</p>
+        </div>
+        <div class="list-group" th:unless="${recommendations.sameRegion.isEmpty()}">
+            <a th:each="course : ${recommendations.sameRegion}" href="#" th:href="@{'/courses/' + ${course.id}}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" th:text="${course.title}">코스 제목</h6>
+                    <small class="text-muted" th:text="${course.summary != null ? #strings.abbreviate(course.summary, 50) : ''}">요약...</small>
+                </div>
+                <span class="badge bg-success rounded-pill"><i class="bi bi-heart-fill"></i> <span th:text="${course.likeCount}">0</span></span>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</body>
+</html>

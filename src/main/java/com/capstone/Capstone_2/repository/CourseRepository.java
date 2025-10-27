@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public interface CourseRepository extends JpaRepository<Course, UUID> {
+public interface CourseRepository extends JpaRepository<Course, UUID>, CourseRepositoryCustom {
     Page<Course> findByReviewStateAndRegionCodeInAndCategory_SlugIn(
             ReviewState state, Iterable<String> regionCodes, Iterable<String> categorySlugs, Pageable pageable);
 
@@ -27,8 +27,10 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
 
     Page<Course> findByOrderByLikeCountDesc(Pageable pageable);
 
-    @Query("select c from Course c where c.reviewState = :state and (:q is null or lower(c.title) like lower(concat('%', :q, '%')) or lower(c.summary) like lower(concat('%', :q, '%')))")
-    Page<Course> search(@Param("state") ReviewState state, @Param("q") String q, Pageable pageable);
+    /*
+    @Query("select c from Course c where (:q is null or lower(c.title) like lower(concat('%', :q, '%')) or lower(c.summary) like lower(concat('%', :q, '%')))")
+    Page<Course> search(@Param("q") String q, Pageable pageable);
+*/
 
     @Query("SELECT l2.course FROM Like l1 " +
             "JOIN Like l2 ON l1.user = l2.user " +

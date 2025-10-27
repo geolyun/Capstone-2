@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.CourseDto.*;
+import com.capstone.Capstone_2.dto.CourseSearchDto;
 import com.capstone.Capstone_2.dto.RecommendationDto;
 import com.capstone.Capstone_2.service.CourseService;
 import jakarta.validation.Valid;
@@ -44,9 +45,8 @@ public class CourseController {
         return service.get(id);
     }
 
-    @GetMapping
-    public Page<CourseSummary> search(@RequestParam(required = false) String q, Pageable pageable) {
-        return service.search(q, pageable);
+    public Page<CourseSummary> search(@ModelAttribute CourseSearchDto searchDto, Pageable pageable) {
+        return service.search(searchDto, pageable);
     }
 
     @PostMapping("/{id}/submit")

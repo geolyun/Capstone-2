@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>코스 탐색</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<div th:replace="~{layout/header :: header}"></div>
+
+<main class="container mt-5 mb-5">
+    <h1 class="mb-4">코스 탐색</h1>
+
+    <form th:action="@{/courses}" method="get" th:object="${searchDto}" class="mb-4 row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="q" class="form-label">키워드</label>
+            <input type="text" id="q" th:field="*{q}" class="form-control" placeholder="제목 또는 요약">
+        </div>
+        <div class="col-md-2">
+            <label for="region" class="form-label">지역 코드</label>
+            <input type="text" id="region" th:field="*{region}" class="form-control" placeholder="예: 11000">
+        </div>
+        <div class="col-md-2">
+            <label for="maxCost" class="form-label">최대 비용(원)</label>
+            <input type="number" id="maxCost" th:field="*{maxCost}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label for="maxDuration" class="form-label">최대 시간(분)</label>
+            <input type="number" id="maxDuration" th:field="*{maxDuration}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <label for="tag" class="form-label">태그</label>
+            <input type="text" id="tag" th:field="*{tag}" class="form-control" placeholder="예: 맛집">
+        </div>
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">검색</button>
+            <a th:href="@{/courses}" class="btn btn-secondary">초기화</a>
+        </div>
+    </form>
+
+    <div th:if="${coursePage.isEmpty()}">
+        <p class="text-center text-muted">검색 결과가 없습니다.</p>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" th:unless="${coursePage.isEmpty()}">
+        <div class="col" th:each="course : ${coursePage.content}">
+            <div class="card h-100 shadow-sm">
+                <a th:href="@{'/courses/' + ${course.id()}}" class="text-decoration-none text-dark">
+                    <img th:src="${course.coverImageUrl() != null ? course.coverImageUrl() : '/images/default-course.png'}"
+                         class="card-img-top" alt="코스 이미지" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${course.title()}">코스 제목</h5>
+                        <p class="card-text text-muted small" th:text="${course.regionName()}">지역</p>
+                        <p class="card-text" th:text="${#strings.abbreviate(course.summary(), 80)}">요약...</p>
+                    </div>
+                </a>
+                <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="bi bi-heart-fill text-danger"></i> <span th:text="${course.likeCount()}">0</span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav aria-label="Page navigation" class="mt-5" th:if="${!coursePage.isEmpty() and coursePage.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${coursePage.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/courses(page=0, q=${searchDto.q}, region=${searchDto.region}, maxCost=${searchDto.maxCost}, maxDuration=${searchDto.maxDuration}, tag=${searchDto.tag})}">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${!coursePage.hasPrevious()} ? 'disabled'">
+                <a class="page-link" th:href="@{/courses(page=${coursePage.number - 1}, q=${searchDto.q}, region=${searchDto.region}, maxCost=${searchDto.maxCost}, maxDuration=${searchDto.maxDuration}, tag=${searchDto.tag})}">
+                    <span aria-hidden="true">&lsaquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, coursePage.totalPages - 1)}"
+                th:classappend="${pageNum == coursePage.number} ? 'active'">
+                <a class="page-link" th:href="@{/courses(page=${pageNum}, q=${searchDto.q}, region=${searchDto.region}, maxCost=${searchDto.maxCost}, maxDuration=${searchDto.maxDuration}, tag=${searchDto.tag})}" th:text="${pageNum + 1}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${!coursePage.hasNext()} ? 'disabled'">
+                <a class="page-link" th:href="@{/courses(page=${coursePage.number + 1}, q=${searchDto.q}, region=${searchDto.region}, maxCost=${searchDto.maxCost}, maxDuration=${searchDto.maxDuration}, tag=${searchDto.tag})}">
+                    <span aria-hidden="true">&rsaquo;</span>
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${coursePage.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/courses(page=${coursePage.totalPages - 1}, q=${searchDto.q}, region=${searchDto.region}, maxCost=${searchDto.maxCost}, maxDuration=${searchDto.maxDuration}, tag=${searchDto.tag})}">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

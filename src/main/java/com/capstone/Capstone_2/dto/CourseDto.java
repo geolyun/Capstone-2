@@ -2,54 +2,80 @@ package com.capstone.Capstone_2.dto;
 
 import com.capstone.Capstone_2.entity.ReviewState;
 import jakarta.validation.constraints.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class CourseDto {
-    public record SpotReq(
-            @NotNull Integer orderNo,
-            @NotBlank String title,
-            String description,
-            BigDecimal lat,
-            BigDecimal lng,
-            List<String> images,
-            Integer stayMinutes,
-            Integer price
-    ) {}
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class SpotReq {
+        @NotNull private Integer orderNo;
+        @NotBlank private String title;
+        private String description;
+        private BigDecimal lat;
+        private BigDecimal lng;
+        private List<String> images = new ArrayList<>(); // 초기화 추가
+        private Integer stayMinutes;
+        private Integer price;
+    }
 
 
-    public record CreateReq(
-            UUID categoryId,
-            @NotBlank @Size(max = 100) String title,
-            String summary,
-            String coverImageUrl,
-            String regionCode,
-            String regionName,
-            Integer durationMinutes,
-            Integer estimatedCost,
-            List<String> tags,
-            Map<String, Object> metadata,
-            @NotNull List<SpotReq> spots
-    ) {}
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class CreateReq {
+        private UUID categoryId;
+        @NotBlank @Size(max = 100)
+        private String title;
+        private String summary;
+        private String coverImageUrl;
+        private String regionCode;
+        private String regionName;
+        private Integer durationMinutes;
+        private Integer estimatedCost;
+
+        // API용 + 웹 파싱 후 저장용
+        private List<String> tags = new ArrayList<>();
+
+        // 웹 폼 입력용 임시 필드
+        private String tagsString;
+
+        // API용 + 웹 파싱 후 저장용
+        private Map<String, Object> metadata = new HashMap<>();
+
+        // 웹 폼 입력용 임시 필드
+        private String metadataJson;
+
+        @NotNull
+        private List<SpotReq> spots = new ArrayList<>(); // 초기화 추가
+    }
 
 
-    public record UpdateReq(
-            UUID categoryId,
-            String title,
-            String summary,
-            String coverImageUrl,
-            String regionCode,
-            String regionName,
-            Integer durationMinutes,
-            Integer estimatedCost,
-            List<String> tags,
-            Map<String, Object> metadata,
-            List<SpotReq> spots
-    ) {}
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class UpdateReq {
+        private UUID categoryId;
+        private String title;
+        private String summary;
+        private String coverImageUrl;
+        private String regionCode;
+        private String regionName;
+        private Integer durationMinutes;
+        private Integer estimatedCost;
+        private List<String> tags;
+        private String tagsString; // 웹 폼용
+        private Map<String, Object> metadata;
+        private String metadataJson; // 웹 폼용
+        private List<SpotReq> spots;
+    }
 
 
     public record CourseSummary(
