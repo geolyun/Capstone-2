@@ -12,7 +12,7 @@ public interface CourseService {
     Detail create(CreateReq req, String creatorEmail);
     Detail update(UUID courseId, UpdateReq req, String currentUserEmail);
     void delete(UUID courseId, String currentUserEmail);
-    Detail get(UUID courseId);
+    Detail get(UUID courseId, String currentUserEmail);
     Page<CourseSummary> search(CourseSearchDto searchDto, Pageable pageable);
     Detail submitForReview(UUID courseId, String currentUserEmail);
     Detail approve(UUID courseId);

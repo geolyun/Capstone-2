@@ -41,10 +41,13 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public Detail get(@PathVariable UUID id) {
-        return service.get(id);
+    public Detail get(@PathVariable UUID id, @AuthenticationPrincipal UserDetails principal) {
+        String email = (principal != null) ? principal.getUsername() : null;
+
+        return service.get(id, email);
     }
 
+    @GetMapping
     public Page<CourseSummary> search(@ModelAttribute CourseSearchDto searchDto, Pageable pageable) {
         return service.search(searchDto, pageable);
     }

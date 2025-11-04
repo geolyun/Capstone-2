@@ -38,6 +38,7 @@ public class User extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING) // ✅ 이 어노테이션을 추가합니다.
     @Column(nullable = false)
+    @Builder.Default
     private UserRole role = UserRole.USER;
 
     @Column(nullable = false)

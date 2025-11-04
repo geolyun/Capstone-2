@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict; // ✅ CacheEvict import
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,5 +49,22 @@ public class LikeServiceImpl implements LikeService {
             course.setLikeCount(course.getLikeCount() + 1);
             return new LikeDto(user.getId(), courseId, true, course.getLikeCount());
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isCourseLikedByUser(UUID courseId, String userEmail) {
+        Optional<User> userOpt = userRepo.findByEmail(userEmail);
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+        User user = userOpt.get();
+
+        if (!courseRepo.existsById(courseId)) {
+            return false;
+        }
+
+        LikeId likeId = new LikeId(user.getId(), courseId);
+        return likeRepo.existsById(likeId);
     }
 }

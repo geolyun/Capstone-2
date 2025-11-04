@@ -47,11 +47,8 @@ public class CourseDto {
         // 웹 폼 입력용 임시 필드
         private String tagsString;
 
-        // API용 + 웹 파싱 후 저장용
-        private Map<String, Object> metadata = new HashMap<>();
-
-        // 웹 폼 입력용 임시 필드
-        private String metadataJson;
+        // private Map<String, Object> metadata = new HashMap<>();
+        // private String metadataJson;
 
         @NotNull
         private List<SpotReq> spots = new ArrayList<>(); // 초기화 추가
@@ -72,8 +69,8 @@ public class CourseDto {
         private Integer estimatedCost;
         private List<String> tags;
         private String tagsString; // 웹 폼용
-        private Map<String, Object> metadata;
-        private String metadataJson; // 웹 폼용
+        // private Map<String, Object> metadata;
+        // private String metadataJson;
         private List<SpotReq> spots;
     }
 
@@ -116,11 +113,13 @@ public class CourseDto {
             Integer durationMinutes,
             Integer estimatedCost,
             List<String> tags,
-            Map<String, Object> metadata,
+            // Map<String, Object> metadata,
             Integer likeCount,
             Integer purchaseCount,
             ReviewState reviewState,
             OffsetDateTime publishedAt,
-            List<SpotRes> spots
+            List<SpotRes> spots,
+            boolean isCurrentUserLiked,
+            java.time.LocalDateTime createdAt
     ) {}
 }

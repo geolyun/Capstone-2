@@ -73,9 +73,9 @@ public class Course extends BaseTimeEntity {
     @Column(name = "tag", length = 50, nullable = false)
     private Set<String> tags = new LinkedHashSet<>();
 
-    @Type(JsonType.class)
-    @Column(name = "metadata", columnDefinition = "jsonb")
-    private Map<String, Object> metadata;
+    // @Type(JsonType.class)
+    // @Column(name = "metadata")
+    // private Map<String, Object> metadata;
 
     private OffsetDateTime publishedAt;
 

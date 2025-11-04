@@ -44,7 +44,7 @@ public class CourseSpot extends BaseTimeEntity {
     @Column(precision = 9, scale = 6)
     private BigDecimal lng;
 
-    @Column(columnDefinition = "jsonb")
+    @Column(name = "images")
     private String images;
 
     private Integer stayMinutes;

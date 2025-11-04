@@ -16,6 +16,7 @@
                     <h2 class="text-center mb-4">회원가입</h2>
 
                     <form th:action="@{/auth/register}" method="post" th:object="${signUpDto}">
+                        <!-- 이메일 / 비밀번호 / 닉네임 필드 그대로 유지 -->
                         <div class="form-floating mb-3">
                             <input type="email" class="form-control" th:errorclass="is-invalid" id="email" th:field="*{email}" placeholder=" " required>
                             <label for="email">이메일 주소</label>
@@ -37,20 +38,19 @@
                             <div th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="invalid-feedback"></div>
                         </div>
 
+                        <!-- ✅ 약관 / 개인정보 동의 부분 수정 -->
                         <div class="form-check mb-3">
-                            <input class="form-check-input" th:errorclass="is-invalid" type="checkbox" id="termsAgreed" th:field="*{termsAgreed}">
+                            <input class="form-check-input" type="checkbox" id="termsAgreed" th:field="*{termsAgreed}">
                             <label class="form-check-label" for="termsAgreed">
-                                <a href="/terms" target="_blank">서비스 이용 약관</a>에 동의합니다. (필수)
+                                <a href="#" id="openTerms">서비스 이용 약관</a>에 동의합니다. (필수)
                             </label>
-                            <div th:if="${#fields.hasErrors('termsAgreed')}" th:errors="*{termsAgreed}" class="invalid-feedback d-block"></div>
                         </div>
 
                         <div class="form-check mb-3">
-                            <input class="form-check-input" th:errorclass="is-invalid" type="checkbox" id="privacyAgreed" th:field="*{privacyAgreed}">
+                            <input class="form-check-input" type="checkbox" id="privacyAgreed" th:field="*{privacyAgreed}">
                             <label class="form-check-label" for="privacyAgreed">
-                                <a href="/privacy" target="_blank">개인정보 처리 방침</a>에 동의합니다. (필수)
+                                <a href="#" id="openPrivacy">개인정보 처리 방침</a>에 동의합니다. (필수)
                             </label>
-                            <div th:if="${#fields.hasErrors('privacyAgreed')}" th:errors="*{privacyAgreed}" class="invalid-feedback d-block"></div>
                         </div>
 
                         <div class="d-grid">
@@ -67,27 +67,58 @@
     </div>
 </div>
 
+<!-- ✅ Bootstrap 모달 (약관) -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsLabel">서비스 이용 약관</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body" id="termsContent">불러오는 중...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Bootstrap 모달 (개인정보처리방침) -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privacyLabel">개인정보 처리 방침</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body" id="privacyContent">불러오는 중...</div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    const passwordInput = document.getElementById('password');
-    const passwordConfirmInput = document.getElementById('passwordConfirm');
-    const passwordError = document.getElementById('passwordError');
-    const submitButton = document.getElementById('submitButton');
+    const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+    const privacyModal = new bootstrap.Modal(document.getElementById('privacyModal'));
 
-    function validatePassword() {
-        if (passwordInput.value !== passwordConfirmInput.value) {
-            passwordError.style.display = 'block';
-            submitButton.disabled = true;
-        } else {
-            passwordError.style.display = 'none';
-            submitButton.disabled = false;
-        }
-    }
+    document.getElementById('openTerms').addEventListener('click', async e => {
+        e.preventDefault();
+        const content = document.getElementById('termsContent');
 
-    passwordInput.addEventListener('keyup', validatePassword);
-    passwordConfirmInput.addEventListener('keyup', validatePassword);
+        // 👇 URL을 '/terms'에서 '/legal/terms-content'로 변경
+        const resp = await fetch('/legal/terms-content');
+
+        content.innerHTML = await resp.text();
+        termsModal.show();
+    });
+
+    document.getElementById('openPrivacy').addEventListener('click', async e => {
+        e.preventDefault();
+        const content = document.getElementById('privacyContent');
+
+        // 👇 URL을 '/privacy'에서 '/legal/privacy-content'로 변경
+        const resp = await fetch('/legal/privacy-content');
+
+        content.innerHTML = await resp.text();
+        privacyModal.show();
+    });
 </script>
-
 </body>
 </html>

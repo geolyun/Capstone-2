@@ -84,7 +84,7 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/h2-console/**", "/privacy", "/terms").permitAll()
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/h2-console/**", "/privacy", "/terms", "/legal/terms-content", "/legal/privacy-content").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

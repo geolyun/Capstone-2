@@ -74,11 +74,6 @@
             <div th:if="${#fields.hasErrors('tagsString')}" th:errors="*{tagsString}" class="invalid-feedback"></div>
         </div>
 
-        <div class="mb-3">
-            <label for="metadataJson" class="form-label">추가 정보 (JSON 형식, 선택)</label>
-            <textarea id="metadataJson" th:field="*{metadataJson}" class="form-control" th:errorclass="is-invalid" rows="3" placeholder='예: {"difficulty": "easy", "theme": "photo"}'></textarea>
-            <div th:if="${#fields.hasErrors('metadataJson')}" th:errors="*{metadataJson}" class="invalid-feedback"></div>
-        </div>
 
         <hr>
         <h4>코스 스팟 수정 <span class="text-danger">*</span></h4>

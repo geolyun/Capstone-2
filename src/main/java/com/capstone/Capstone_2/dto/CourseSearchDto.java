@@ -11,4 +11,5 @@ public class CourseSearchDto {
     private Integer maxCost; // 최대 예산
     private Integer maxDuration; // 최대 소요 시간 (분)
     private String tag; // 단일 태그 검색
+    private String sortType;
 }
