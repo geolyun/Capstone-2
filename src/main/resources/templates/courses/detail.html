@@ -218,7 +218,7 @@
 
             try {
                 // 3. API 호출
-                const apiUrl = /*[[@{/api/courses/}]]*/ '/api/courses/' + courseId + '/likes/toggle';
+                const apiUrl = /*[[@{/courses/{id}/likes/toggle(id=${course.id()})}]]*/ null;
                 const headers = {
                     'Accept': 'application/json'
                 };
@@ -306,7 +306,7 @@
             }
 
             try {
-                const apiUrl = /*[[@{/api/courses/}]]*/ '/api/courses/' + courseId + '/report';
+                const apiUrl = /*[[@{/courses/{id}/report(id=${course.id()})}]]*/ null;
                 const headers = {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'

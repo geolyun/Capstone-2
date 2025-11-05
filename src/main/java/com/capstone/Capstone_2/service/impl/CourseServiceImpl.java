@@ -348,7 +348,7 @@ public class CourseServiceImpl implements CourseService {
         return new CourseSummary(
                 c.getId(), c.getTitle(), c.getSummary(), c.getCoverImageUrl(),
                 c.getRegionName(), c.getDurationMinutes(), c.getEstimatedCost(),
-                c.getLikeCount(), c.getPurchaseCount(), c.getReviewState()
+                c.getLikeCount(), c.getPurchaseCount(), c.getReviewState(), c.getCreatedAt()
         );
     }
 

@@ -85,7 +85,8 @@ public class CourseDto {
             Integer estimatedCost,
             Integer likeCount,
             Integer purchaseCount,
-            ReviewState reviewState
+            ReviewState reviewState,
+            java.time.LocalDateTime createdAt
     ) {}
 
 

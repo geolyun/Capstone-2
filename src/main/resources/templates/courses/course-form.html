@@ -15,6 +15,14 @@
 
 <main class="container mt-5 mb-5">
     <h2>새 코스 만들기</h2>
+
+    <div class="mb-3 p-3 border rounded bg-light">
+        <label classs="form-label fw-bold">추천 템플릿으로 시작하기:</label>
+        <div id="template-buttons" class="mt-2 d-flex flex-wrap gap-2">
+            <span class="text-muted">템플릿 로딩 중...</span>
+        </div>
+    </div>
+
     <hr>
     <form th:action="@{/courses}" th:object="${course}" method="post">
 
@@ -207,6 +215,68 @@
             });
             spotIndex++;
         });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadRecommendationTemplates();
+    });
+
+    // 1. 템플릿 목록을 서버에서 불러와 버튼 생성
+    async function loadRecommendationTemplates() {
+        const container = document.getElementById('template-buttons');
+        try {
+            // ✅ 수정된 컨트롤러 경로로 fetch
+            const response = await fetch('/courses/recommendation-templates');
+            if (!response.ok) throw new Error('템플릿 로드 실패');
+
+            const templates = await response.json();
+            container.innerHTML = ''; // "로딩 중..." 텍스트 제거
+
+            templates.forEach(template => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-outline-primary btn-sm';
+                button.textContent = template.title;
+                // 3. 버튼 클릭 시 applyTemplate 함수 호출
+                button.addEventListener('click', () => applyTemplate(template));
+                container.appendChild(button);
+            });
+        } catch (error) {
+            console.error('Template load error:', error);
+            container.innerHTML = '<span class="text-danger">템플릿을 불러오지 못했습니다.</span>';
+        }
+    }
+
+    // 2. 템플릿 데이터를 폼에 적용하는 함수
+    function applyTemplate(template) {
+        // 기본 정보 채우기
+        document.getElementById('title').value = template.title;
+        document.getElementById('summary').value = template.summary;
+
+        // 스팟 정보 채우기 (기존 addSpot 함수 재활용)
+        spotsContainer.innerHTML = ''; // 기존 스팟 모두 삭제
+        spotIndex = 0; // 스팟 인덱스 초기화
+
+        if (template.spots && template.spots.length > 0) {
+            template.spots.forEach(spotData => {
+                // 템플릿에 스팟이 있으면 addSpot() 호출
+                addSpot();
+
+                // addSpot()으로 방금 생성된 마지막 스팟 아이템을 찾음
+                const lastSpotItem = spotsContainer.lastElementChild;
+                if (lastSpotItem) {
+                    // 스켈레톤 데이터 채우기
+                    lastSpotItem.querySelector('input[name$=".title"]').value = spotData.title || '';
+                    lastSpotItem.querySelector('textarea[name$=".description"]').value = spotData.description || '';
+                    lastSpotItem.querySelector('input[name$=".stayMinutes"]').value = spotData.stayMinutes || '';
+                    lastSpotItem.querySelector('input[name$=".price"]').value = spotData.price || '';
+                    // (위도, 경도, 이미지 등은 템플릿에 없으므로 비워둠)
+                }
+            });
+        } else {
+            // 템플릿에 스팟이 없으면, 기본 1개만 추가
+            addSpot();
+        }
     }
 
     addSpotBtn.addEventListener('click', addSpot);
