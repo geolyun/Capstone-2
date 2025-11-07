@@ -18,7 +18,6 @@ public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "uuid")
     private UUID id;
 
     @Column(unique = true, nullable = false)

@@ -18,7 +18,6 @@ public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "uuid")
     private UUID id;
 
     @Column(unique = true, nullable = false, length = 40)
@@ -28,7 +27,7 @@ public class Category {
     private String slug;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_id", columnDefinition = "binary(16)")
     private Category parent;
 
     @OneToMany(mappedBy = "parent")

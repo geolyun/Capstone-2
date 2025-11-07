@@ -17,14 +17,16 @@ public class Report {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private UUID id; // 이 부분은 수정할 필요 없습니다.
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reporter_id")
+    // ✅ 수정: columnDefinition = "binary(16)" 추가
+    @JoinColumn(name = "reporter_id", columnDefinition = "binary(16)")
     private User reporter; // 신고한 사용자
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
+    // ✅ 수정: columnDefinition = "binary(16)" 추가
+    @JoinColumn(name = "course_id", columnDefinition = "binary(16)")
     private Course reportedCourse; // 신고된 코스
 
     @Enumerated(EnumType.STRING)

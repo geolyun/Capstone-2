@@ -23,15 +23,14 @@ public class Course extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "uuid")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(name = "creator_id", nullable = false, columnDefinition = "binary(16)")
     private CreatorProfile creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", columnDefinition = "binary(16)")
     private Category category;
 
     @Column(nullable = false, length = 100)
