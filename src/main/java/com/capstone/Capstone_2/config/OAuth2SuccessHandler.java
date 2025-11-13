@@ -30,14 +30,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             getRedirectStrategy().sendRedirect(request, response, "/auth/nickname");
 
         } else {
-
-            String token = jwtUtil.generateToken(principal);
-
-            // 프론트엔드 주소는 실제 프로젝트에 맞게 변경해야 함. (예: React, Vue 앱 주소)
-            String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth-redirect")
-                    .queryParam("token", token)
-                    .build().toUriString();
-
+            String targetUrl = "/home";
 
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
