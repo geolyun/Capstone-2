@@ -1,9 +1,7 @@
 package com.capstone.Capstone_2.controller;
 
-import com.capstone.Capstone_2.dto.CourseDto;
-import com.capstone.Capstone_2.dto.CourseSearchDto;
-import com.capstone.Capstone_2.dto.RecommendationDto;
-import com.capstone.Capstone_2.dto.UserPrincipal;
+import com.capstone.Capstone_2.dto.*;
+import com.capstone.Capstone_2.service.CategoryService;
 import com.capstone.Capstone_2.service.CourseService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -31,6 +29,7 @@ import java.util.stream.Collectors;
 public class CourseWebController {
 
     private final CourseService courseService;
+    private final CategoryService categoryService;
     // private final ObjectMapper objectMapper; // ⬅️ 3. ObjectMapper 필드 제거
     private static final Logger logger = LoggerFactory.getLogger(CourseWebController.class);
 
@@ -59,6 +58,10 @@ public class CourseWebController {
     @GetMapping("/new")
     public String courseForm(Model model) {
         model.addAttribute("course", new CourseDto.CreateReq());
+
+        // ✅ 2. 카테고리 목록을 계층형 Map으로 변환하여 모델에 추가
+        model.addAttribute("categoryMap", getGroupedCategories());
+
         return "courses/course-form";
     }
 
@@ -145,12 +148,36 @@ public class CourseWebController {
 
             model.addAttribute("course", updateReq);
             model.addAttribute("courseId", courseId);
+
+            model.addAttribute("categoryMap", getGroupedCategories());
+
             return "courses/course-edit-form";
         } catch (EntityNotFoundException e) {
             return "error/404";
         } catch (AccessDeniedException e) {
             return "redirect:/courses/" + courseId + "?error=permission_denied";
         }
+    }
+
+    private Map<String, List<CategoryDto>> getGroupedCategories() {
+        List<CategoryDto> all = categoryService.list();
+        Map<String, List<CategoryDto>> map = new LinkedHashMap<>();
+
+        // 대분류(Parent가 null인 것)를 먼저 찾음
+        List<CategoryDto> roots = all.stream()
+                .filter(c -> c.parentId() == null)
+                .toList();
+
+        for (CategoryDto root : roots) {
+            // 해당 대분류에 속한 소분류들을 찾음
+            List<CategoryDto> children = all.stream()
+                    .filter(c -> root.id().equals(c.parentId()))
+                    .toList();
+            if (!children.isEmpty()) {
+                map.put(root.name(), children);
+            }
+        }
+        return map;
     }
 
     @PostMapping("/{courseId}/edit")

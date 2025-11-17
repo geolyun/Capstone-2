@@ -5,4 +5,5 @@ import com.capstone.Capstone_2.entity.User;
 
 public interface UserService {
     User registerNewUser(SignUpDto signUpDto);
+    boolean verifyCode(String email, String code);
 }

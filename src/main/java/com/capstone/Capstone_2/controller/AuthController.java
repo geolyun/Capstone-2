@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -63,15 +64,14 @@ public class AuthController {
 
     @PostMapping("/register")
     public String processRegistration(
-            @Valid @ModelAttribute("signUpDto") SignUpDto signUpDto, // ✅ @Valid 추가
-            BindingResult bindingResult) { // ✅ BindingResult 추가
+            @Valid @ModelAttribute("signUpDto") SignUpDto signUpDto,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
 
-        // ✅ 유효성 검사 실패 시, 에러 메시지와 함께 다시 회원가입 폼을 보여줌
         if (bindingResult.hasErrors()) {
             return "auth/register";
         }
 
-        // 비밀번호 일치 확인 (서비스로 옮겨도 됨)
         if (!signUpDto.getPassword().equals(signUpDto.getPasswordConfirm())) {
             bindingResult.rejectValue("passwordConfirm", "passwordInCorrect", "비밀번호가 일치하지 않습니다.");
             return "auth/register";
@@ -79,16 +79,55 @@ public class AuthController {
 
         try {
             userService.registerNewUser(signUpDto);
-        } catch (IllegalStateException e) { // 이메일 중복 등 서비스 예외 처리
+        } catch (IllegalStateException e) {
             bindingResult.reject("signupFailed", e.getMessage());
             return "auth/register";
         }
 
-        return "redirect:/auth/login";
+        redirectAttributes.addAttribute("email", signUpDto.getEmail());
+        return "redirect:/auth/verify";
     }
 
     @GetMapping("/login")
-    public String loginPage() {
+    public String loginPage(@ModelAttribute("message") String message,
+                            @ModelAttribute("error") String error,
+                            Model model) {
+        model.addAttribute("message", message);
+        model.addAttribute("error", error);
         return "auth/login";
+    }
+
+    /**
+     * 인증 코드 입력 폼을 보여주는 GET 엔드포인트
+     */
+    @GetMapping("/verify")
+    public String verifyCodeForm(@RequestParam("email") String email,
+                                 @ModelAttribute("error") String error, // POST에서 실패 시 전달되는 에러
+                                 Model model) {
+        model.addAttribute("email", email);
+        model.addAttribute("error", error);
+        return "auth/verify-form"; // ✅ templates/auth/verify-form.html
+    }
+
+    /**
+     * 인증 코드를 검증하는 POST 엔드포인트
+     */
+    @PostMapping("/verify")
+    public String verifyCode(@RequestParam("email") String email,
+                             @RequestParam("code") String code,
+                             RedirectAttributes redirectAttributes) {
+
+        boolean success = userService.verifyCode(email, code);
+
+        if (success) {
+            // ✅ 인증 성공: 로그인 페이지로 리다이렉트하며 성공 메시지 전달
+            redirectAttributes.addFlashAttribute("message", "이메일 인증이 완료되었습니다! 로그인해주세요.");
+            return "redirect:/auth/login";
+        } else {
+            // ❌ 인증 실패: 다시 인증 폼으로 리다이렉트하며 에러 메시지 전달
+            redirectAttributes.addFlashAttribute("error", "인증 번호가 올바르지 않거나 만료되었습니다.");
+            redirectAttributes.addAttribute("email", email); // 쿼리 파라미터 유지를 위해
+            return "redirect:/auth/verify";
+        }
     }
 }

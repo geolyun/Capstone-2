@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.dto;
 
 import com.capstone.Capstone_2.entity.User;
+import com.capstone.Capstone_2.entity.UserStatus;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -70,5 +71,7 @@ public class UserPrincipal implements UserDetails, OAuth2User {
     public boolean isCredentialsNonExpired() { return true; }
 
     @Override
-    public boolean isEnabled() { return "active".equalsIgnoreCase(this.user.getStatus()); }
+    public boolean isEnabled() {
+        return UserStatus.ACTIVE.equals(this.user.getStatus());
+    }
 }

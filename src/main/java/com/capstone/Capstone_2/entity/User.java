@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -40,8 +41,13 @@ public class User extends BaseTimeEntity {
     @Builder.Default
     private UserRole role = UserRole.USER;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status = "active";
+    @Builder.Default
+    private UserStatus status = UserStatus.PENDING;
+
+    private String verificationToken;
+    private LocalDateTime tokenExpiryDate;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private CreatorProfile creatorProfile;

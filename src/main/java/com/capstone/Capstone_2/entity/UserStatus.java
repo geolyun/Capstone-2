@@ -1,3 +1,8 @@
 package com.capstone.Capstone_2.entity;
 
-public enum UserStatus { ACTIVE, SUSPENDED, WITHDRAWN }
+public enum UserStatus {
+    PENDING,
+    ACTIVE,
+    SUSPENDED,
+    WITHDRAWN
+}

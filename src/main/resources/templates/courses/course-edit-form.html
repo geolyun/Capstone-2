@@ -30,6 +30,17 @@
             <div th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="invalid-feedback"></div>
         </div>
         <div class="mb-3">
+            <label for="category" class="form-label">카테고리</label>
+            <select th:field="*{categoryId}" id="category" class="form-select">
+                <option value="">카테고리를 선택하세요</option>
+                <optgroup th:each="entry : ${categoryMap}" th:label="${entry.key}">
+                    <option th:each="child : ${entry.value}"
+                            th:value="${child.id}"
+                            th:text="${child.name}">소분류</option>
+                </optgroup>
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="summary" class="form-label">한 줄 요약</label>
             <textarea id="summary" th:field="*{summary}" class="form-control" th:errorclass="is-invalid" rows="2"></textarea>
             <div th:if="${#fields.hasErrors('summary')}" th:errors="*{summary}" class="invalid-feedback"></div>

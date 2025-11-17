@@ -65,7 +65,7 @@ public class SecurityConfig {
                         .accessDeniedHandler((req, res, ex) -> res.setStatus(HttpServletResponse.SC_FORBIDDEN))
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/verify").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
                         .anyRequest().authenticated()
                 )
