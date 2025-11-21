@@ -104,7 +104,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/verify").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/courses/**", "/api/categories/**").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/api/files/upload").authenticated()
 
                         .anyRequest().authenticated()
                 )
