@@ -22,7 +22,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -53,31 +56,56 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * ✅ CORS 설정을 위한 Bean 정의
+     * 프론트엔드(ringco.my)와 로컬 개발 환경(localhost:3000)에서의 접근을 허용합니다.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // 1. 허용할 프론트엔드 도메인 목록
+        configuration.setAllowedOrigins(Arrays.asList(
+                "https://ringco.my",       // 배포된 프론트엔드
+                "http://localhost:3000"    // 로컬 개발용 프론트엔드
+        ));
+
+        // 2. 허용할 HTTP 메서드
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // 3. 허용할 헤더
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+
+        // 4. 자격 증명(쿠키, 인증 헤더 등) 허용
+        configuration.setAllowCredentials(true);
+
+        // 모든 경로에 대해 위 설정 적용
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         System.out.println("### Initializing API Security Filter Chain ###");
         http
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("https://ringco.my")); // ✅ 프론트엔드 도메인 허용
-                    config.setAllowedMethods(Collections.singletonList("*"));
-                    config.setAllowCredentials(true);
-                    config.setAllowedHeaders(Collections.singletonList("*"));
-                    return config;
-                }))
-                .securityMatcher("/api/**") // ✅ 이 필터 체인은 /api/ 경로에만 적용됨
+                // ✅ 위에서 만든 CORS 설정 Bean을 적용
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .exceptionHandling(e -> e // JSON 에러 응답
+                .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> res.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
                         .accessDeniedHandler((req, res, ex) -> res.setStatus(HttpServletResponse.SC_FORBIDDEN))
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/verify").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/files/upload").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -90,14 +118,8 @@ public class SecurityConfig {
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         System.out.println("### Initializing WEB Security Filter Chain ###");
         http
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("https://ringco.my")); // ✅ 프론트엔드 도메인 허용
-                    config.setAllowedMethods(Collections.singletonList("*"));
-                    config.setAllowCredentials(true);
-                    config.setAllowedHeaders(Collections.singletonList("*"));
-                    return config;
-                }))
+                // ✅ 위에서 만든 CORS 설정 Bean을 적용
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
