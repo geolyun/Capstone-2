@@ -66,20 +66,18 @@ public class SecurityConfig {
 
         // 1. 허용할 프론트엔드 도메인 목록
         configuration.setAllowedOrigins(Arrays.asList(
-                "https://ringco.my",       // 배포된 프론트엔드
-                "http://localhost:3000"    // 로컬 개발용 프론트엔드
+                "https://ringco.my",
+                "http://localhost:3000",
+                "https://www.ringco.my",
+                "https://localhost:3000"
         ));
 
-        // 2. 허용할 HTTP 메서드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // 3. 허용할 헤더
         configuration.setAllowedHeaders(Collections.singletonList("*"));
 
-        // 4. 자격 증명(쿠키, 인증 헤더 등) 허용
         configuration.setAllowCredentials(true);
 
-        // 모든 경로에 대해 위 설정 적용
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
