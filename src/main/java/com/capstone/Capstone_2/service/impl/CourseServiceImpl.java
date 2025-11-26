@@ -30,6 +30,7 @@ import org.springframework.security.core.userdetails.UserDetails; // UserDetails
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -345,10 +346,20 @@ public class CourseServiceImpl implements CourseService {
      * Course 엔티티를 CourseSummary DTO로 변환합니다.
      */
     private CourseSummary toSummary(Course c) {
+
+        BigDecimal lat = null;
+        BigDecimal lng = null;
+
+        if (c.getCourseSpots() != null && !c.getCourseSpots().isEmpty()) {
+            CourseSpot firstSpot = c.getCourseSpots().get(0);
+            lat = firstSpot.getLat();
+            lng = firstSpot.getLng();
+        }
+
         return new CourseSummary(
                 c.getId(), c.getTitle(), c.getSummary(), c.getCoverImageUrl(),
                 c.getRegionName(), c.getDurationMinutes(), c.getEstimatedCost(),
-                c.getLikeCount(), c.getPurchaseCount(), c.getReviewState(), c.getCreatedAt()
+                c.getLikeCount(), c.getPurchaseCount(), c.getReviewState(), c.getCreatedAt(), lat, lng
         );
     }
 
