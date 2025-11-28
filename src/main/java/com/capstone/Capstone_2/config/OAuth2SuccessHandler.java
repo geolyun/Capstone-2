@@ -26,13 +26,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
+        String token = jwtUtil.generateToken(principal);
+
+        String targetUrl;
         if (principal.getUser().getRole() == UserRole.GUEST) {
-            getRedirectStrategy().sendRedirect(request, response, "/auth/nickname");
-
+            targetUrl = "/auth/nickname";
         } else {
-            String targetUrl = "/";
-
-            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+            targetUrl = UriComponentsBuilder.fromUriString("https://ringco.my")
+                    .queryParam("token", token)
+                    .build().toUriString();
         }
+
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 }
