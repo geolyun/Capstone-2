@@ -8,16 +8,10 @@ import java.security.Principal;
 public class HomeController {
 
     @GetMapping("/")
-    public String index(Principal principal) {
-
+    public String home(Principal principal) {
         if (principal != null) {
-            return "redirect:/home";
+            return "home";
         }
         return "index";
-    }
-
-    @GetMapping("/home")
-    public String home() {
-        return "home";
     }
 }

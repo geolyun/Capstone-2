@@ -100,7 +100,7 @@ public class CourseWebController {
             // 서비스 호출
             courseService.create(createReq, principal.getUsername());
             logger.info("Course created successfully via web form!");
-            return "redirect:/home";
+            return "redirect:/";
 
         } catch (Exception e) {
             logger.error("Error creating course via web form: {}", e.getMessage(), e);

@@ -53,7 +53,7 @@ public class AuthController {
                 newUserPrincipal, null, newUserPrincipal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
 
-        return "redirect:/home";
+        return "redirect:/";
     }
 
     @GetMapping("/register")

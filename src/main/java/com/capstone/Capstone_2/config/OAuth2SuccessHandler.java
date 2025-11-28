@@ -30,7 +30,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             getRedirectStrategy().sendRedirect(request, response, "/auth/nickname");
 
         } else {
-            String targetUrl = "/home";
+            String targetUrl = "/";
 
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
