@@ -18,7 +18,12 @@ public class ApiProfileController {
 
     @GetMapping("/me")
     public ResponseEntity<ProfileDto> getMyProfile(@AuthenticationPrincipal UserPrincipal principal) {
-        return ResponseEntity.ok(ProfileDto.from(principal.getUser()));
+
+        String email = principal.getUsername();
+
+        ProfileDto profileDto = creatorProfileService.getProfile(email);
+
+        return ResponseEntity.ok(profileDto);
     }
 
     @PutMapping("/me")

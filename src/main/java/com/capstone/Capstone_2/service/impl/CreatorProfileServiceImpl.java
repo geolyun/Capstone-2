@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.service.impl;
 
 import com.capstone.Capstone_2.dto.CreatorProfileDto;
+import com.capstone.Capstone_2.dto.ProfileDto;
 import com.capstone.Capstone_2.entity.CreatorProfile;
 import com.capstone.Capstone_2.entity.User;
 import com.capstone.Capstone_2.repository.UserRepository;
@@ -19,6 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreatorProfileServiceImpl implements CreatorProfileService {
 
     private final UserRepository userRepository;
+
+    @Override
+    @Transactional(readOnly = true) // 트랜잭션 시작 (DB 연결 유지)
+    public ProfileDto getProfile(String userEmail) {
+        User user = userRepository.findByEmailWithProfile(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        return ProfileDto.from(user);
+    }
 
     @Override
     @Transactional
