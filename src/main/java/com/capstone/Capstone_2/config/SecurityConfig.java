@@ -56,77 +56,69 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    /**
-     * ✅ CORS 설정을 위한 Bean 정의
-     * 프론트엔드(ringco.my)와 로컬 개발 환경(localhost:3000)에서의 접근을 허용합니다.
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        // 1. 허용할 프론트엔드 도메인 목록
+        // 프론트엔드 도메인 및 로컬 테스트 주소 허용
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://ringco.my",
-                "http://localhost:3000",
                 "https://www.ringco.my",
-                "https://localhost:3000"
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
         ));
-
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Collections.singletonList("*"));
-
         configuration.setAllowCredentials(true);
+
+        // JWT 토큰 헤더 노출 허용
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
+    // 1. API 관련 보안 설정 (JSON 응답, JWT 인증)
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("### Initializing API Security Filter Chain ###");
         http
-                // ✅ 위에서 만든 CORS 설정 Bean을 적용
+                .securityMatcher("/api/**") // /api/ 로 시작하는 모든 요청에 적용
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .securityMatcher("/api/**")
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안 함
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .exceptionHandling(e -> e
-                        .authenticationEntryPoint((req, res, ex) -> res.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
-                        .accessDeniedHandler((req, res, ex) -> res.setStatus(HttpServletResponse.SC_FORBIDDEN))
-                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/signup", "/api/auth/login", "/api/auth/verify").permitAll()
-
+                        // Preflight 요청 허용 (CORS 필수)
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // 로그인, 회원가입, 이메일 인증 등은 누구나 접근 가능
+                        .requestMatchers("/api/auth/**").permitAll()
+                        // 코스 목록, 상세 조회, 카테고리 조회는 누구나 접근 가능 (GET)
                         .requestMatchers(HttpMethod.GET, "/api/courses/**", "/api/categories/**").permitAll()
-
-                        .requestMatchers(HttpMethod.POST, "/api/files/upload").authenticated()
-
+                        // 그 외 API 요청은 인증 필요 (파일 업로드, 코스 생성/수정 등)
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // 2. 웹(HTML) 관련 보안 설정 (관리자 페이지, 소셜 로그인 등)
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
-        System.out.println("### Initializing WEB Security Filter Chain ###");
         http
-                // ✅ 위에서 만든 CORS 설정 Bean을 적용
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/h2-console/**", "/privacy", "/terms", "/legal/terms-content", "/legal/privacy-content").permitAll()
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**", "/h2-console/**", "/privacy", "/terms", "/legal/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
