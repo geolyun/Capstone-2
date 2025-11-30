@@ -38,6 +38,10 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("이미 사용 중인 이메일입니다.");
         }
 
+        if (userRepository.existsByNickname(signUpDto.getNickname())) {
+            throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
+        }
+
         // ✅ 6자리 인증 코드 생성
         String code = createVerificationCode();
 
