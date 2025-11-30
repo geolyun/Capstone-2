@@ -19,10 +19,7 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         if (categoryRepository.count() == 0) {
-            createCategoryGroup("미식", List.of("로컬맛집", "카페투어", "브런치", "디저트", "야식"));
-            createCategoryGroup("자연", List.of("산책", "피크닉", "캠핑", "계곡", "정원", "풍경 명소"));
-            createCategoryGroup("문화", List.of("전시회", "박물관", "체험공방", "북카페", "공연"));
-            createCategoryGroup("활동", List.of("클라이밍", "카약", "볼링", "사격", "실내서핑", "방탈출"));
+            createCategoryGroup("테마", List.of("식사", "카페", "산책", "액티비티", "힐링", "여행"));
         }
     }
 
