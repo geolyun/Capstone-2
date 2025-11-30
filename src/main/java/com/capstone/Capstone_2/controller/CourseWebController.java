@@ -1,6 +1,7 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.*;
+import com.capstone.Capstone_2.repository.RegionRepository;
 import com.capstone.Capstone_2.service.CategoryService;
 import com.capstone.Capstone_2.service.CourseService;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,6 +31,7 @@ public class CourseWebController {
 
     private final CourseService courseService;
     private final CategoryService categoryService;
+    private final RegionRepository regionRepository;
     // private final ObjectMapper objectMapper; // ⬅️ 3. ObjectMapper 필드 제거
     private static final Logger logger = LoggerFactory.getLogger(CourseWebController.class);
 
@@ -61,6 +63,12 @@ public class CourseWebController {
 
         // ✅ 2. 카테고리 목록을 계층형 Map으로 변환하여 모델에 추가
         model.addAttribute("categoryMap", getGroupedCategories());
+
+        List<RegionDto> regions = regionRepository.findByParentIsNullOrderByCodeAsc()
+                .stream()
+                .map(RegionDto::new)
+                .toList();
+        model.addAttribute("regions", regions);
 
         return "courses/course-form";
     }
@@ -150,6 +158,12 @@ public class CourseWebController {
             model.addAttribute("courseId", courseId);
 
             model.addAttribute("categoryMap", getGroupedCategories());
+
+            List<RegionDto> regions = regionRepository.findByParentIsNullOrderByCodeAsc()
+                    .stream()
+                    .map(RegionDto::new)
+                    .toList();
+            model.addAttribute("regions", regions);
 
             return "courses/course-edit-form";
         } catch (EntityNotFoundException e) {
