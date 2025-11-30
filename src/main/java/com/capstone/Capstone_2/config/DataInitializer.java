@@ -22,7 +22,11 @@ public class DataInitializer implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
         if (categoryRepository.count() == 0) {
-            createCategoryGroup("테마", List.of("식사", "카페", "산책", "액티비티", "힐링", "여행"));
+            // 대주제만 있고 소주제가 없으면 선택이 불가능하므로, '전체'라는 기본 소주제를 하나씩 넣어줍니다.
+            createCategoryGroup("공강시간", List.of("전체"));
+            createCategoryGroup("약속모임", List.of("전체"));
+            createCategoryGroup("카공", List.of("전체"));
+            createCategoryGroup("데이트", List.of("전체"));
         }
 
         if (regionRepository.count() == 0) {
@@ -31,16 +35,15 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createCategoryGroup(String rootName, List<String> childrenNames) {
-        Category root = Category.builder()
-                .name(rootName)
-                .slug(rootName)
-                .build();
+        // 대주제(Root) 생성
+        Category root = Category.builder().name(rootName).slug(rootName).build();
         categoryRepository.save(root);
 
+        // 소주제(Children) 생성
         for (String childName : childrenNames) {
             Category child = Category.builder()
                     .name(childName)
-                    .slug(childName)
+                    .slug(rootName + "-" + childName) // slug 중복 방지를 위해 prefix 추가 권장
                     .parent(root)
                     .build();
             categoryRepository.save(child);
