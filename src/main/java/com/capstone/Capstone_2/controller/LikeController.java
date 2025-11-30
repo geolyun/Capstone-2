@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/courses/{courseId}/likes")
+@RequestMapping("/api/courses/{courseId}/likes")
 @RequiredArgsConstructor
 public class LikeController {
 
