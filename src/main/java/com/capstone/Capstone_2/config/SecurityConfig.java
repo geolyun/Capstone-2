@@ -118,7 +118,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**", "/h2-console/**", "/privacy", "/terms", "/legal/**").permitAll()
+                        .requestMatchers("/", "/auth/**", "/css/**", "/js/**", "/images/**", "/h2-console/**", "/privacy", "/terms", "/legal/**", "/courses/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

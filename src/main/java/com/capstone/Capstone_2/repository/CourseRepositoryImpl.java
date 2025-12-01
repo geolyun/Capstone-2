@@ -38,6 +38,11 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
             );
         }
 
+        if (searchDto.getCategoryId() != null) {
+            // 코스의 카테고리 ID가 검색 조건의 ID와 일치하는지 확인
+            builder.and(course.category.id.eq(searchDto.getCategoryId()));
+        }
+
         // 2. 지역 코드 필터 -> regionCode 필드 사용 (CourseSearchDto에 regionCode 필드가 있다고 가정)
         // if (StringUtils.hasText(searchDto.getRegion())) { // DTO 필드명 확인 필요
         //     builder.and(course.regionCode.eq(searchDto.getRegion()));

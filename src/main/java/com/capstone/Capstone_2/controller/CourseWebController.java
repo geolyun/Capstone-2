@@ -132,14 +132,14 @@ public class CourseWebController {
 
     @GetMapping("/{courseId}")
     public String courseDetailPage(@PathVariable UUID courseId, Model model, @AuthenticationPrincipal UserPrincipal principal) {
-        // try {
+        try {
             String email = (principal != null) ? principal.getUsername() : null;
             CourseDto.Detail courseDetail = courseService.get(courseId, email); // (get 메서드 시그니처 변경 제안 반영)
             model.addAttribute("course", courseDetail);
             return "courses/detail";
-        // } catch (Exception e) {
-        //    return "error/404";
-        //    }
+        } catch (Exception e) {
+           return "error/404";
+        }
     }
 
     @GetMapping("/{courseId}/edit")
