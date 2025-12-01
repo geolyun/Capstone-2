@@ -20,7 +20,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(unique = true, nullable = false, length = 40)
+    @Column(nullable = false, length = 40)
     private String name;
 
     @Column(unique = true, nullable = false, length = 40)
