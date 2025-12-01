@@ -27,6 +27,12 @@ public interface CourseRepository extends JpaRepository<Course, UUID>, CourseRep
 
     Page<Course> findByOrderByLikeCountDesc(Pageable pageable);
 
+
+    Page<Course> findByCreator_Id(UUID creatorId, Pageable pageable);
+
+    @Query("SELECT l.course FROM Like l WHERE l.user.id = :userId ORDER BY l.createdAt DESC")
+    Page<Course> findLikedCoursesByUserId(@Param("userId") UUID userId, Pageable pageable);
+
     /*
     @Query("select c from Course c where (:q is null or lower(c.title) like lower(concat('%', :q, '%')) or lower(c.summary) like lower(concat('%', :q, '%')))")
     Page<Course> search(@Param("q") String q, Pageable pageable);

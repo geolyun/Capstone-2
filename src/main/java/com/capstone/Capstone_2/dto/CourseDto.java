@@ -22,6 +22,7 @@ public class CourseDto {
         private BigDecimal lat;
         private BigDecimal lng;
         private List<String> images = new ArrayList<>(); // 초기화 추가
+        private String imagesInput;
         private Integer stayMinutes;
         private Integer price;
     }

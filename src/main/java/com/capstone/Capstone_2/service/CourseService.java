@@ -19,4 +19,6 @@ public interface CourseService {
     Detail reject(UUID courseId, String reason);
     Page<CourseSummary> getPopularCourses(Pageable pageable);
     RecommendationDto getCourseRecommendations(UUID courseId);
+    Page<CourseSummary> getMyCourses(String email, Pageable pageable);
+    Page<CourseSummary> getLikedCourses(String email, Pageable pageable);
 }
