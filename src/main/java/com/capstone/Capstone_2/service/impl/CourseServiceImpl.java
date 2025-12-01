@@ -807,11 +807,22 @@ public class CourseServiceImpl implements CourseService {
                 c.getId(),
                 c.getCreator().getId(),
                 c.getCreator().getDisplayName(),
-                c.getCategory() == null ? null : c.getCategory().getSlug(),
-                c.getTitle(), c.getSummary(), c.getCoverImageUrl(),
-                c.getRegionCode(), c.getRegionName(), c.getDurationMinutes(), c.getEstimatedCost(),
+                // [수정 1] 카테고리가 없으면 null 대신 빈 문자열 반환
+                c.getCategory() == null ? "" : c.getCategory().getSlug(),
+                c.getTitle(),
+                // [수정 2] 요약이 없으면 빈 문자열
+                c.getSummary() == null ? "" : c.getSummary(),
+                c.getCoverImageUrl(),
+                // [수정 3] 지역 코드가 없으면 빈 문자열 (여기서 substring 에러가 많이 납니다)
+                c.getRegionCode() == null ? "" : c.getRegionCode(),
+                // [수정 4] 지역 이름이 없으면 빈 문자열
+                c.getRegionName() == null ? "" : c.getRegionName(),
+                c.getDurationMinutes(),
+                c.getEstimatedCost(),
                 c.getTags() == null ? List.of() : new ArrayList<>(c.getTags()),
-                c.getLikeCount(), c.getPurchaseCount(), c.getReviewState(),
+                c.getLikeCount(),
+                c.getPurchaseCount(),
+                c.getReviewState(),
                 c.getPublishedAt(),
                 spotResList,
                 isLiked,
