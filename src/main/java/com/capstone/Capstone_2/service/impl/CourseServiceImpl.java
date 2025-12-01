@@ -595,6 +595,8 @@ public class CourseServiceImpl implements CourseService {
                 course.getCourseSpots().clear();
             }
 
+            courseRepo.flush();
+
             if (!req.getSpots().isEmpty()) {
                 List<CourseSpot> newSpots = req.getSpots().stream().map(spotDto -> {
                     // ✅ [수정] 이미지 문자열 파싱 로직 (Update 시에도 동일 적용)
