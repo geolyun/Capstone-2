@@ -1,7 +1,7 @@
 package com.capstone.Capstone_2.entity;
 
 import com.capstone.Capstone_2.config.common.BaseTimeEntity;
-import com.capstone.Capstone_2.entity.CreatorProfile;
+// 사용하지 않는 import는 제거해도 되지만, 기존 코드 유지를 위해 남겨둡니다.
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
@@ -81,4 +81,12 @@ public class Course extends BaseTimeEntity {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderNo asc")
     private List<CourseSpot> courseSpots;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Like> likes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reportedCourse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Report> reports = new ArrayList<>();
 }
