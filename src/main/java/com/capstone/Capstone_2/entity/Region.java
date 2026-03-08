@@ -19,16 +19,16 @@ public class Region {
     private UUID id;
 
     @Column(nullable = false)
-    private String name; // 예: 서울, 강남구
+    private String name;
 
     @Column(nullable = false, unique = true)
-    private String code; // 예: 11, 11680
+    private String code;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Region parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    @OrderBy("code asc") // 코드 순서대로 정렬
+    @OrderBy("code asc")
     private List<Region> children = new ArrayList<>();
 }

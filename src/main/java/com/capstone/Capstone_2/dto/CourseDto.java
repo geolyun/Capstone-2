@@ -21,12 +21,11 @@ public class CourseDto {
         private String description;
         private BigDecimal lat;
         private BigDecimal lng;
-        private List<String> images = new ArrayList<>(); // 초기화 추가
+        private List<String> images = new ArrayList<>();
         private String imagesInput;
         private Integer stayMinutes;
         private Integer price;
     }
-
 
     @Getter
     @Setter
@@ -48,13 +47,9 @@ public class CourseDto {
         // 웹 폼 입력용 임시 필드
         private String tagsString;
 
-        // private Map<String, Object> metadata = new HashMap<>();
-        // private String metadataJson;
-
         @NotNull
-        private List<SpotReq> spots = new ArrayList<>(); // 초기화 추가
+        private List<SpotReq> spots = new ArrayList<>();
     }
-
 
     @Getter
     @Setter
@@ -69,12 +64,9 @@ public class CourseDto {
         private Integer durationMinutes;
         private Integer estimatedCost;
         private List<String> tags;
-        private String tagsString; // 웹 폼용
-        // private Map<String, Object> metadata;
-        // private String metadataJson;
+        private String tagsString;
         private List<SpotReq> spots;
     }
-
 
     public record CourseSummary(
             UUID id,
@@ -91,7 +83,6 @@ public class CourseDto {
             BigDecimal lat,
             BigDecimal lng
     ) {}
-
 
     public record SpotRes(
             Integer orderNo,
@@ -117,7 +108,6 @@ public class CourseDto {
             Integer durationMinutes,
             Integer estimatedCost,
             List<String> tags,
-            // Map<String, Object> metadata,
             Integer likeCount,
             Integer purchaseCount,
             ReviewState reviewState,

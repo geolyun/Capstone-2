@@ -19,7 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-@RequiredArgsConstructor // 생성자 주입
+@RequiredArgsConstructor
 public class CourseRepositoryImpl implements CourseRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
@@ -31,7 +31,7 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
 
         // --- 동적 쿼리 조건 생성 ---
 
-        // 1. 텍스트 검색 (제목 또는 요약)
+        // 1. 텍스트 검색
         if (StringUtils.hasText(searchDto.getQ())) {
             builder.and(course.title.containsIgnoreCase(searchDto.getQ())
                     .or(course.summary.containsIgnoreCase(searchDto.getQ()))
@@ -43,11 +43,6 @@ public class CourseRepositoryImpl implements CourseRepositoryCustom {
             builder.and(course.category.id.eq(searchDto.getCategoryId()));
         }
 
-        // 2. 지역 코드 필터 -> regionCode 필드 사용 (CourseSearchDto에 regionCode 필드가 있다고 가정)
-        // if (StringUtils.hasText(searchDto.getRegion())) { // DTO 필드명 확인 필요
-        //     builder.and(course.regionCode.eq(searchDto.getRegion()));
-        // }
-        // 수정: DTO에 region 필드가 regionCode를 의미한다고 가정
         if (StringUtils.hasText(searchDto.getRegion())) {
             builder.and(course.regionCode.eq(searchDto.getRegion()));
         }

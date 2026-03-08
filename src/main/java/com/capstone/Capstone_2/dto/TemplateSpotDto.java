@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class TemplateSpotDto {
     private String title;
-    private Integer stayMinutes; // duration -> stayMinutes
-    private Integer price;       // cost -> price
+    private Integer stayMinutes;
+    private Integer price;
     private String description;
 }

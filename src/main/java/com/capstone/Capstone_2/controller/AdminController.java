@@ -1,7 +1,7 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.ReportResponseDto;
-import com.capstone.Capstone_2.service.AdminService;
+import com.capstone.Capstone_2.service.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

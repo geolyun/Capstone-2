@@ -1,7 +1,7 @@
 package com.capstone.Capstone_2.config;
 
-import com.capstone.Capstone_2.service.CustomOAuth2UserService;
-import com.capstone.Capstone_2.service.CustomUserDetailsService;
+import com.capstone.Capstone_2.service.user.CustomOAuth2UserService;
+import com.capstone.Capstone_2.service.user.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

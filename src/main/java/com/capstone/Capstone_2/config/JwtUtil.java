@@ -18,11 +18,10 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // ✅ application.properties 또는 application.yml에서 secret key 값을 가져옵니다.
     @Value("${jwt.secret}")
     private String secret;
 
-    // JWT 만료 시간 (밀리초 단위, 여기서는 24시간으로 설정)
+    // JWT 만료 시간 (24시간으로 설정)
     private static final long JWT_EXPIRATION_MS = 1000 * 60 * 60 * 24;
 
     /**

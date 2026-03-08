@@ -1,13 +1,10 @@
 package com.capstone.Capstone_2.entity;
 
 import com.capstone.Capstone_2.config.common.BaseTimeEntity;
-// 사용하지 않는 import는 제거해도 되지만, 기존 코드 유지를 위해 남겨둡니다.
-import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Type;
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -71,10 +68,6 @@ public class Course extends BaseTimeEntity {
     @CollectionTable(name = "course_tags", joinColumns = @JoinColumn(name = "course_id"))
     @Column(name = "tag", length = 50, nullable = false)
     private Set<String> tags = new LinkedHashSet<>();
-
-    // @Type(JsonType.class)
-    // @Column(name = "metadata")
-    // private Map<String, Object> metadata;
 
     private OffsetDateTime publishedAt;
 

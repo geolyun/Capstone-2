@@ -20,7 +20,7 @@ public class S3UploaderService {
     @Value("${s3.bucket-name}")
     private String bucketName;
 
-    @Value("${app.aws.s3.base-dir:}") // 없으면 빈 문자열
+    @Value("${app.aws.s3.base-dir:}")
     private String baseDir;
 
     public String upload(MultipartFile file, String dirName) throws IOException {
@@ -29,7 +29,7 @@ public class S3UploaderService {
         String originalFilename = file.getOriginalFilename();
         String keyPrefix = (dirName != null && !dirName.isBlank()) ? dirName :
                 (baseDir != null ? baseDir : "");
-        keyPrefix = keyPrefix == null ? "" : keyPrefix.replaceAll("^/|/$", ""); // 앞뒤 슬래시 제거
+        keyPrefix = keyPrefix == null ? "" : keyPrefix.replaceAll("^/|/$", "");
 
         String key = (keyPrefix.isBlank() ? "" : keyPrefix + "/")
                 + UUID.randomUUID() + "-" + (originalFilename == null ? "file" : originalFilename);

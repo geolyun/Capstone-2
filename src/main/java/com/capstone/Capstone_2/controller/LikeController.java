@@ -1,8 +1,8 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.LikeDto;
-import com.capstone.Capstone_2.dto.UserPrincipal;
-import com.capstone.Capstone_2.service.LikeService;
+import com.capstone.Capstone_2.config.security.UserPrincipal;
+import com.capstone.Capstone_2.service.course.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

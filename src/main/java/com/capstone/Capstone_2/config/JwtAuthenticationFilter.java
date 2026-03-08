@@ -1,6 +1,6 @@
 package com.capstone.Capstone_2.config;
 
-import com.capstone.Capstone_2.service.CustomUserDetailsService;
+import com.capstone.Capstone_2.service.user.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,20 +34,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = null;
         String userEmail = null;
 
-        // 1. 헤더 확인
+        // 헤더 확인
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
-                // ✅ 2. [수정] 토큰 파싱 시도 (에러 발생 가능 구간)
+                // 토큰 파싱 시도 (에러 발생 가능 구간)
                 userEmail = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                // 🚨 토큰이 만료되었거나 잘못된 경우
-                // 로그만 남기고 인증 절차를 건너뜁니다. (401 에러를 내지 않음)
+                // 토큰이 만료되었거나 잘못된 경우
                 logger.warn("JWT Token error: " + e.getMessage());
             }
         }
 
-        // 3. 인증 진행 (이메일이 정상적으로 추출된 경우에만)
+        // 인증 진행
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
@@ -67,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 4. 다음 필터로 진행 (로그인이 안 된 상태라도 요청을 허용)
+        // 다음 필터로 진행
         filterChain.doFilter(request, response);
     }
 }

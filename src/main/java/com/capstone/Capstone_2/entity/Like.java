@@ -1,14 +1,11 @@
 package com.capstone.Capstone_2.entity;
 
-import com.capstone.Capstone_2.entity.Course;
-import com.capstone.Capstone_2.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "likes")

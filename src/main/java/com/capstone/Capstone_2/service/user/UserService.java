@@ -1,0 +1,9 @@
+package com.capstone.Capstone_2.service.user;
+
+import com.capstone.Capstone_2.dto.SignUpDto;
+import com.capstone.Capstone_2.entity.User;
+
+public interface UserService {
+    User registerNewUser(SignUpDto signUpDto);
+    boolean verifyCode(String email, String code);
+}

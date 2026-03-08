@@ -2,7 +2,7 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.CourseDto.CourseSummary;
-import com.capstone.Capstone_2.service.CourseService;
+import com.capstone.Capstone_2.service.course.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

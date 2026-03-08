@@ -24,11 +24,13 @@ public class User extends BaseTimeEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
+    // OAuth 사용자는 null
     private String passwordHash;
 
     @Column(nullable = false)
     private String provider = "local";
 
+    // 일반 사용자는 null
     private String providerId;
 
     @Column(unique = true, nullable = false, length = 40)
@@ -36,7 +38,7 @@ public class User extends BaseTimeEntity {
 
     private String avatarUrl;
 
-    @Enumerated(EnumType.STRING) // ✅ 이 어노테이션을 추가합니다.
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private UserRole role = UserRole.USER;
@@ -47,6 +49,7 @@ public class User extends BaseTimeEntity {
     private UserStatus status = UserStatus.PENDING;
 
     private String verificationToken;
+
     private LocalDateTime tokenExpiryDate;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

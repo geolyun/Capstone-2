@@ -32,10 +32,8 @@ public class CreatorProfile extends BaseTimeEntity {
     @Column(precision = 4, scale = 2)
     private BigDecimal trustScore;
 
-
     @Column(precision = 3, scale = 2)
     private BigDecimal avgRating;
-
 
     private Integer totalSales = 0;
 }

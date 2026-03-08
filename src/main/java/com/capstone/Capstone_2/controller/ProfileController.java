@@ -1,49 +1,60 @@
 package com.capstone.Capstone_2.controller;
 
+import com.capstone.Capstone_2.dto.CourseDto;
 import com.capstone.Capstone_2.dto.CreatorProfileDto;
 import com.capstone.Capstone_2.dto.ProfileDto;
-import com.capstone.Capstone_2.dto.UserPrincipal;
-import com.capstone.Capstone_2.service.CreatorProfileService;
+import com.capstone.Capstone_2.config.security.UserPrincipal;
+import com.capstone.Capstone_2.service.course.CourseService;
+import com.capstone.Capstone_2.service.mypage.CreatorProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/profile")
+@RestController
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 public class ProfileController {
 
     private final CreatorProfileService creatorProfileService;
+    private final CourseService courseService;
 
     @GetMapping("/me")
-    public String myProfilePage(@AuthenticationPrincipal UserPrincipal principal, Model model) {
-        ProfileDto profileDto = ProfileDto.from(principal.getUser());
-        model.addAttribute("profile", profileDto);
-        return "profile/my-profile";
+    public ResponseEntity<ProfileDto> getMyProfile(@AuthenticationPrincipal UserPrincipal principal) {
+
+        String email = principal.getUsername();
+
+        ProfileDto profileDto = creatorProfileService.getProfile(email);
+
+        return ResponseEntity.ok(profileDto);
     }
 
-    @GetMapping("/me/edit")
-    public String editProfilePage(@AuthenticationPrincipal UserPrincipal principal, Model model) {
-        // 현재 프로필 정보를 DTO에 담아 폼에 기본값으로 채워줍니다.
-        ProfileDto profileDto = ProfileDto.from(principal.getUser());
-        model.addAttribute("profile", profileDto);
-        return "profile/profile-edit";
-    }
-
-    // ✅ 2. 프로필 수정 폼 제출을 처리하는 메서드 추가
-    @PostMapping("/me/edit")
-    public String updateProfile(
+    @PutMapping("/me")
+    public ResponseEntity<String> updateProfile(
             @AuthenticationPrincipal UserPrincipal principal,
-            @ModelAttribute("profile") CreatorProfileDto.UpdateRequest updateRequest) {
+            @RequestBody CreatorProfileDto.UpdateRequest updateRequest) {
 
         creatorProfileService.updateProfile(principal.getUsername(), updateRequest);
+        return ResponseEntity.ok("프로필이 성공적으로 수정되었습니다.");
+    }
 
-        // 수정 완료 후, '내 프로필' 페이지로 다시 이동
-        return "redirect:/profile/me";
+    @GetMapping("/me/courses")
+    public ResponseEntity<Page<CourseDto.CourseSummary>> getMyCourses(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(courseService.getMyCourses(principal.getUsername(), pageable));
+    }
+
+    @GetMapping("/me/liked-courses")
+    public ResponseEntity<Page<CourseDto.CourseSummary>> getLikedCourses(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        return ResponseEntity.ok(courseService.getLikedCourses(principal.getUsername(), pageable));
     }
 }

@@ -17,7 +17,6 @@ public class RegionDto {
         this.id = region.getId();
         this.name = region.getName();
         this.code = region.getCode();
-        // ✅ 자식 지역(시/군/구)들도 자동으로 DTO로 변환되어 리스트에 담김 (재귀)
         this.children = region.getChildren().stream()
                 .map(RegionDto::new)
                 .collect(Collectors.toList());

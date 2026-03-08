@@ -1,8 +1,8 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.ReportDto;
-import com.capstone.Capstone_2.dto.UserPrincipal;
-import com.capstone.Capstone_2.service.ReportService;
+import com.capstone.Capstone_2.config.security.UserPrincipal;
+import com.capstone.Capstone_2.service.course.ReportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

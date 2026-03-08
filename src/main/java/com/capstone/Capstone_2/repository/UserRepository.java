@@ -16,9 +16,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.creatorProfile WHERE u.email = :email")
     Optional<User> findByEmailWithProfile(@Param("email") String email);
-
-    Optional<User> findByVerificationToken(String token);
-
-    @Query("SELECT u FROM User u WHERE u.provider = :provider AND u.providerId = :providerId")
-    Optional<User> findByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
 }

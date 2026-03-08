@@ -18,13 +18,17 @@ public class DataInitializer implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final RegionRepository regionRepository;
 
+    // 초기 데이터 적재
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        // 초기 카테고리 값 삽입
         if (categoryRepository.count() == 0) {
             createCategoryGroup("테마", List.of("공강시간", "약속모임", "데이트", "카공"));
         }
 
+        // 지역값 없으면 초기 지역 값 삽입
         if (regionRepository.count() == 0) {
             initRegionData();
         }

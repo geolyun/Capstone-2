@@ -1,13 +1,13 @@
 package com.capstone.Capstone_2.controller;
 
 import com.capstone.Capstone_2.dto.RecommendationTemplateDto;
-import com.capstone.Capstone_2.dto.TemplateSpotDto; // TemplateSpotDto import
+import com.capstone.Capstone_2.dto.TemplateSpotDto;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/courses/recommendation-templates") // ✅ /api 경로 제거
+@RequestMapping("/courses/recommendation-templates")
 public class RecommendationTemplateController {
 
     @GetMapping
@@ -18,7 +18,6 @@ public class RecommendationTemplateController {
                         .title("아침 3스팟(저예산)")
                         .summary("아침 산책 → 간단 브런치 → 무료 전시")
                         .spots(List.of(
-                                // ✅ TemplateSpotDto 사용 및 필드명 통일
                                 TemplateSpotDto.builder().title("근린공원 산책").stayMinutes(60).price(0).build(),
                                 TemplateSpotDto.builder().title("브런치 카페").stayMinutes(90).price(8000).build(),
                                 TemplateSpotDto.builder().title("구청 무료전시").stayMinutes(60).price(0).build()
