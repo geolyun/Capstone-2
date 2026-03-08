@@ -1,3 +1,8 @@
+### ERD
+
+<img width="1396" height="1117" alt="Capstone-2 (1)" src="https://github.com/user-attachments/assets/dae2f08d-dd8d-4734-be65-c1d187687cf6" />
+
+
 # 링코 (Ringco)
 
 여행 코스를 공유하고 추천받는 플랫폼입니다. 크리에이터가 코스를 등록하면 다른 사용자가 탐색하고, 좋아요를 누르고, 추천을 받을 수 있습니다.
